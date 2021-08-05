@@ -1,0 +1,40 @@
+{
+	"Jipa": {
+		"triggers": {
+			"fall": {
+				"val": true,
+				"to": {"Name": "minecraft:grass_block"}
+			},
+			"land": {
+				"val": 10.0,
+				"to": {"Name": "minecraft:dirt"}
+			},
+			"explode": {
+				"val": 1.0,
+				"to": {"Name": "minecraft:dirt"}
+			}
+		},
+		"blocks": [
+			"minecraft:grass_block"
+		]
+	},
+	"Repidgearnoj": {
+		"triggers": {
+			"fall": {
+				"val": false,
+				"to": {}
+			},
+			"land": {
+				"val": 10.0,
+				"to": {"Name": "minecraft:cobblestone"}
+			},
+			"explode": {
+				"val": 10.0,
+				"to": {"Name": "minecraft:cobblestone"}
+			}
+		},
+		"blocks": [
+			"minecraft:stone"
+		]
+	}
+}

@@ -1,0 +1,25 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "net.skds.bpo.mixins",
+  "target": "@env(DEFAULT)",  
+  "refmap": "mixins.bpo.refmap.json",
+  "compatibilityLevel": "JAVA_8",
+  "mixins": [
+    
+    "block.AbstractBlockStateMixin",
+    "block.FallingBlockMixin",
+    "block.BlockMixin",
+    
+    "ExplosionMixin",
+    "ServerWorldMixin"
+
+  ],
+  "client": [
+  ],
+  "server": [
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
