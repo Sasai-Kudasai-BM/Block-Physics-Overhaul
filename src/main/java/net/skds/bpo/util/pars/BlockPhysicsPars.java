@@ -10,6 +10,8 @@ import java.util.Set;
 
 import javax.annotation.Nullable;
 
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
@@ -178,6 +180,7 @@ public class BlockPhysicsPars {
 
 			Set<Block> attachIgnore = new HashSet<>();
 
+
 			attachIgnore.addAll(BFUtils.getBlocksFromJA(JattachIgnore.getAsJsonArray()));
 			if (existingList == null) {
 				blocks.addAll(BFUtils.getBlocksFromJA(listsE.getAsJsonArray()));
@@ -193,7 +196,13 @@ public class BlockPhysicsPars {
 					dimOver.put(key, par);
 					// System.out.println(par);
 				}
+
+				
+				dimOver = ImmutableMap.copyOf(dimOver);
 			}
+
+			attachIgnore = ImmutableSet.copyOf(attachIgnore);
+			blocks = ImmutableSet.copyOf(blocks);
 
 			BlockPhysicsPars pars = new BlockPhysicsPars(mass, strength, bounce, radial, linear, arc, slide, hanging,
 					attach, falling, ceiling, fragile, attachIgnore, blocks, name, dimOver, diagonal, slideChance);

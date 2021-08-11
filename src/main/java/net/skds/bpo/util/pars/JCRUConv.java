@@ -37,7 +37,7 @@ public class JCRUConv implements IJsonConfigUnit {
 
 	@Override
 	public String getPath() {
-		return "config\\" + BPO.MOD_ID;
+		return "config/" + BPO.MOD_ID;
 	}
 
 	@Override
@@ -47,7 +47,7 @@ public class JCRUConv implements IJsonConfigUnit {
 
 	@Override
 	public String getJarPath() {
-		return BPO.MOD_ID + "\\special";
+		return BPO.MOD_ID + "/special";
 	}
 
 	@Override

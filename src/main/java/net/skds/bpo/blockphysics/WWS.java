@@ -72,7 +72,7 @@ public class WWS implements IWWS {
 	}
 
 	public static ITaskRunnable nextETask(int i) {
-		if (i > 15) {
+		if (i > 0) {
 			return null;
 		}
 

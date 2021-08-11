@@ -3,6 +3,7 @@ build
 bin
 run
 logs
-libs
+lib
 .settings
 .vscode
+libs

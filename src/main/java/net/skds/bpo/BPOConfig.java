@@ -35,7 +35,7 @@ public class BPOConfig {
 	}
 
 	public static void init() {	   
-		File dir = new File("config\\" + BPO.MOD_ID);		
+		File dir = new File("config/" + BPO.MOD_ID);		
 		dir.mkdir();
 		ModLoadingContext.get().registerConfig(Type.COMMON, SPEC, BPO.MOD_ID + "/main.toml");
 	}

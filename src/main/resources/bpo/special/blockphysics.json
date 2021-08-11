@@ -111,7 +111,7 @@
 		"slideChance": 0.5,
 		"radial": 0,
 		"linear": 1,
-		"arc": 2,
+		"arc": 3,
 		"falling": true,
 		"ceiling": false,
 		"fragile": false,
