@@ -121,10 +121,10 @@ public class AdvancedFallingBlockEntity extends Entity implements IEntityAdditio
 
 	private void startSlide() {
 		if (slideDirection != -1 && slideProgress == -1) {
-			slidePos = dataManager.get(SLIDE_POS);
-			if (slidePos.equals(BlockPos.ZERO)) {
+			//slidePos = dataManager.get(SLIDE_POS);
+			//if (slidePos.equals(BlockPos.ZERO)) {
 				slidePos = getPosition();
-			}
+			//}
 			slideDirectionV = slideDirection;
 			slideProgress = 0;
 		}
@@ -137,7 +137,7 @@ public class AdvancedFallingBlockEntity extends Entity implements IEntityAdditio
 
 		} else {
 			dataManager.set(SLIDE_DIRECTION, slideDirection);
-			dataManager.set(SLIDE_PROGRESS, slideProgress);
+			//dataManager.set(SLIDE_PROGRESS, slideProgress);
 			if (slideDirection != -1)
 				dataManager.set(SLIDE_POS, slidePos);
 		}
@@ -457,7 +457,7 @@ public class AdvancedFallingBlockEntity extends Entity implements IEntityAdditio
 			setMotion(motion);
 		} else {
 			setMotion(0, -0.2, 0);
-		}
+		}		
 
 		BlockPos blockpos = this.getOnPosition();
 		BlockState blockstate = this.world.getBlockState(blockpos);

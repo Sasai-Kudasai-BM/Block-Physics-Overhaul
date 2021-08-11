@@ -39,7 +39,7 @@ Is it really needed?
 
 '''
 # A dependency - use the . to indicate dependency for a specific modid. Dependencies are optional.
-[[dependencies.skds_core]] #optional
+[[dependencies.${modId}]] #optional
     # the modid of the dependency
     modId="forge" #mandatory
     # Does this dependency have to exist - if not, ordering below must be specified
@@ -51,9 +51,16 @@ Is it really needed?
     # Side this dependency is applied on - BOTH, CLIENT or SERVER
     side="BOTH"
 # Here's another dependency
-[[dependencies.skds_core]]
+[[dependencies.${modId}]]
     modId="minecraft"
     mandatory=true
     versionRange="${MCVR}"
+    ordering="NONE"
+    side="BOTH"
+
+[[dependencies.skds_core]]
+    modId="skds_core"
+    mandatory=true
+    versionRange="${coreVR}"
     ordering="NONE"
     side="BOTH"

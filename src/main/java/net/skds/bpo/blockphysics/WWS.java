@@ -7,6 +7,8 @@ import java.util.concurrent.ConcurrentSkipListSet;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.network.play.server.SEntityVelocityPacket;
 import net.minecraft.world.server.ServerWorld;
 import net.skds.bpo.BPOConfig;
 import net.skds.bpo.entity.AdvancedFallingBlockEntity;
@@ -72,7 +74,7 @@ public class WWS implements IWWS {
 	}
 
 	public static ITaskRunnable nextETask(int i) {
-		if (i > 0) {
+		if (i > 15) {
 			return null;
 		}
 
@@ -141,6 +143,11 @@ public class WWS implements IWWS {
 		//BPOConfig.cash();
 		collisionMap.tick();
 		tickDT();
+
+		//for (ServerPlayerEntity pl : world.getPlayers()) {
+		//	SEntityVelocityPacket packet = new SEntityVelocityPacket(pl.getEntityId(), pl.getLookVec().scale(1.5));
+		//	pl.connection.sendPacket(packet);
+		//}
 	}
 
 	@Override

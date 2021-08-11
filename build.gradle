@@ -106,7 +106,8 @@ def modsTomlSpec = copySpec {
 				'ForgeVR': project.ForgeVR,
 				'MCVR': project.MCVR,
 				'modId': project.modId,
-				'modName': project.modName
+				'modName': project.modName,
+				'coreVR': project.coreVR
 	}
 }
 
