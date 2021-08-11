@@ -95,23 +95,10 @@ public class AdvancedFallingBlockRenderer extends EntityRenderer<AdvancedFalling
 
 			matrixStackIn.translate(x, y, z);
 
-			if (pos.distanceSq(entityIn.getPosition()) > 2.5) {
-				entityIn.setPosition(pos.getX() + dir.getXOffset() + 0.5, pos.getY() - 1, pos.getZ() + dir.getZOffset() + 0.5);
-
-				//System.out.println(entityIn.slidePos + " " + entityIn.getPosition() + " " + entityIn.getPositionVec());
-			}
-		} else {
-			Vector3d cam = renderManager.info.getProjectedView();
-			Vector3d motion = entityIn.getMotion();
-			float f = 1F - partialTicks;
-			double x = entityIn.getPosX() - cam.x - (motion.x * f);
-			double y = entityIn.getPosY() - cam.y - (motion.y * f);
-			double z = entityIn.getPosZ() - cam.z - (motion.z * f);
-
-			matrixStackIn.pop();
-			matrixStackIn.push();
-
-			matrixStackIn.translate(x, y, z);
+			//if (pos.distanceSq(entityIn.getPosition()) > 2.5) {
+			//	entityIn.setPosition(pos.getX() + dir.getXOffset() + 0.5, pos.getY() - 1, pos.getZ() + dir.getZOffset() + 0.5);
+			//	//System.out.println(entityIn.slidePos + " " + entityIn.getPosition() + " " + entityIn.getPositionVec());
+			//}
 		}
 
 		//matrixStackIn.push();
