@@ -73,7 +73,7 @@ public class Events {
 
 	@SubscribeEvent
 	public void onSyncMTHook(SyncTasksHookEvent e) {
-		ThreadProvider.doSyncFork(WWS::nextTask);
+		//ThreadProvider.doSyncFork(WWS::nextTask);
 	}
 
 	@SubscribeEvent

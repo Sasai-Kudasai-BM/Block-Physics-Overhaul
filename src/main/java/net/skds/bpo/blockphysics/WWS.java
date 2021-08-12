@@ -96,8 +96,8 @@ public class WWS implements IWWS {
 		//while ((e = AFBETasks.poll()) != null) {
 		//	e.tick2();
 		//}
-		//if (true)
-		//	return;
+		if (true)
+			return;
 		ThreadProvider.doSyncFork(WWS::nextETask);
 		try {
 			ThreadProvider.waitForStop();
