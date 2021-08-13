@@ -43,8 +43,12 @@ public class WWS implements IWWS {
 		}
 	};
 
+	
+	public static int E_COUNT = 0;
+
 	private ConcurrentHashMap<BFTask, Integer> delayedTasks = new ConcurrentHashMap<>();
 	private static ConcurrentSkipListSet<BFTask> TASKS = new ConcurrentSkipListSet<>(comp);
+	private static int T_COUNT = 0;
 	private static ConcurrentLinkedQueue<AdvancedFallingBlockEntity> AFBETasks = new ConcurrentLinkedQueue<>();
 
 	public WWS(ServerWorld w, WWSGlobal owner) {
@@ -56,7 +60,7 @@ public class WWS implements IWWS {
 	}
 
 	public static ITaskRunnable nextTask(int i) {
-		if (i > 15) {
+		if (i > 15 || E_COUNT > BPOConfig.MAIN.maxFallingBlocks) {
 			return null;
 		}
 		if (MTHooks.COUNTS > 0 || Events.getRemainingTickTimeMilis() > MTHooks.TIME) {
@@ -65,6 +69,7 @@ public class WWS implements IWWS {
 			while ((task = TASKS.pollFirst()) != null) {
 				// System.out.println(tested);
 				task.worker = i;
+				T_COUNT--;
 				return task;
 			}
 		}
@@ -77,7 +82,8 @@ public class WWS implements IWWS {
 		}
 
 		AdvancedFallingBlockEntity e;
-		if ((e = AFBETasks.poll()) != null) {			
+		if ((e = AFBETasks.poll()) != null) {
+			E_COUNT++;			
 			return new ETask(e);
 		}
 
@@ -96,14 +102,15 @@ public class WWS implements IWWS {
 		//while ((e = AFBETasks.poll()) != null) {
 		//	e.tick2();
 		//}
-		if (true)
-			return;
+		//if (true)
+		//	return;
 		ThreadProvider.doSyncFork(WWS::nextETask);
 		try {
 			ThreadProvider.waitForStop();
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}
+
 	}
 
 	public static void pushAFBT(AdvancedFallingBlockEntity e) {
@@ -111,6 +118,9 @@ public class WWS implements IWWS {
 	}
 
 	public static void pushTask(BFTask task) {
+		if (T_COUNT++ > BPOConfig.MAIN.maxQueueLen) {
+			return;
+		}
 		TASKS.add(task);
 	}
 
@@ -134,6 +144,13 @@ public class WWS implements IWWS {
 		});
 	}
 
+	public static void tickServerIn() {
+		//System.out.println(E_COUNT);
+		E_COUNT = 0;
+		T_COUNT = TASKS.size();
+		//System.out.println(T_COUNT);
+	}
+
 	// =========== Override ==========
 
 	@Override
@@ -141,7 +158,6 @@ public class WWS implements IWWS {
 		//BPOConfig.cash();
 		collisionMap.tick();
 		tickDT();
-
 		//for (ServerPlayerEntity pl : world.getPlayers()) {
 		//	SEntityVelocityPacket packet = new SEntityVelocityPacket(pl.getEntityId(), pl.getLookVec().scale(1.5));
 		//	pl.connection.sendPacket(packet);

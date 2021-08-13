@@ -5,6 +5,8 @@ import net.minecraft.world.Explosion;
 import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.event.TagsUpdatedEvent;
+import net.minecraftforge.event.TickEvent.Phase;
+import net.minecraftforge.event.TickEvent.ServerTickEvent;
 import net.minecraftforge.event.world.ExplosionEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.config.ModConfig;
@@ -73,7 +75,7 @@ public class Events {
 
 	@SubscribeEvent
 	public void onSyncMTHook(SyncTasksHookEvent e) {
-		//ThreadProvider.doSyncFork(WWS::nextTask);
+		ThreadProvider.doSyncFork(WWS::nextTask);
 	}
 
 	@SubscribeEvent
@@ -81,6 +83,13 @@ public class Events {
 		// if (BFManager.onExplosion(e.getExplosion(), e.getWorld())) {
 		// e.setCanceled(true);
 		// }
+	}
+
+	@SubscribeEvent
+	public void onServerStartTick(ServerTickEvent e) {
+		if (e.phase == Phase.START) {
+			WWS.tickServerIn();
+		}
 	}
 
 	@SubscribeEvent

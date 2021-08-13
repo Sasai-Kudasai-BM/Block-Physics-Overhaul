@@ -121,6 +121,7 @@ public class AdvancedFallingBlockEntity extends Entity implements IEntityAdditio
 
 	private void startSlide() {
 		if (slideDirection != -1 && slideProgress == -1) {
+			dataManager.set(SLIDE_DIRECTION, (byte) -1);
 			//slidePos = dataManager.get(SLIDE_POS);
 			//if (slidePos.equals(BlockPos.ZERO)) {
 				slidePos = getPosition();
@@ -133,7 +134,7 @@ public class AdvancedFallingBlockEntity extends Entity implements IEntityAdditio
 	public void syncData() {
 		if (world.isRemote) {
 			slideDirection = dataManager.get(SLIDE_DIRECTION);
-			startSlide();
+				startSlide();
 
 		} else {
 			dataManager.set(SLIDE_DIRECTION, slideDirection);
@@ -323,6 +324,7 @@ public class AdvancedFallingBlockEntity extends Entity implements IEntityAdditio
 
 	@Override
 	public void remove() {
+		WWS.E_COUNT--;
 		super.remove();
 	}
 

@@ -44,7 +44,7 @@ minecraft {
 			arg "mixins." + project.modId + ".json"
 			arg "--username=Sasai_Kudasai_BM"
 			jvmArgs "-Xmx3G"
-			jvmArgs "-XX:+UseConcMarkSweepGC"
+			//jvmArgs "-XX:+UseConcMarkSweepGC"
 			property "mixin.debug.export", "true"
 			property "mixin.debug", "true"
 			property "mixin.env.disableRefMap", "true"
@@ -62,7 +62,7 @@ minecraft {
 			arg '--mixin mixins.' + project.modId + '.json'
 			arg "--username=Sasai_Kudasai_BM"
 			jvmArgs "-Xmx3G"
-			jvmArgs "-XX:+UseConcMarkSweepGC"
+			//jvmArgs "-XX:+UseConcMarkSweepGC"
 			property "mixin.env.disableRefMap", "true"
 			property 'forge.logging.console.level', 'info'
 			property 'terminal.ansi', 'true'
