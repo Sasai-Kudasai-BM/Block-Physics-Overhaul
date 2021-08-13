@@ -20,6 +20,7 @@ import net.minecraft.util.math.shapes.VoxelShapes;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.World;
 import net.minecraftforge.registries.ForgeRegistries;
+import net.skds.bpo.BPOConfig;
 import net.skds.bpo.blockphysics.WWS;
 import net.skds.bpo.util.pars.BlockPhysicsPars;
 import net.skds.bpo.util.pars.ConversionPars;
@@ -110,7 +111,9 @@ public class BFUtils {
 				id = id.substring(1);
 				ITag<Block> tag = BlockTags.getCollection().get(new ResourceLocation(id));
 				if (tag == null) {
-					LOGGER.error("Block tag \"" + id + "\" does not exist!");
+					if (BPOConfig.MAIN.debug) {
+						LOGGER.error("Block tag \"" + id + "\" does not exist!");
+					}
 					continue;
 				}
 				blocks.addAll(tag.getAllElements());
@@ -120,7 +123,9 @@ public class BFUtils {
 			if (block != null && block != Blocks.AIR) {
 				blocks.add(block);
 			} else {
-				LOGGER.error("Block \"" + id + "\" does not exist!");
+				if (BPOConfig.MAIN.debug) {
+					LOGGER.error("Block \"" + id + "\" does not exist!");
+				}
 			}
 		}
 		return blocks;

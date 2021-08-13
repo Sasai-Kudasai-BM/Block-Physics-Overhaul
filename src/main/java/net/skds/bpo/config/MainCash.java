@@ -7,7 +7,7 @@ public class MainCash {
 	public final List<String> dimensionBlacklist;
 	public final int downCheckLimit, maxQueueLen, maxFallingBlocks;
 	public final double damageMultiplier, explosionMultiplier;
-	public final boolean dropDestroyedBlocks, triggerOnStep, explosionFire;
+	public final boolean dropDestroyedBlocks, triggerOnStep, explosionFire, debug;
 
 	public MainCash(Main cfg) {
 		this.downCheckLimit = cfg.downCheckLimit.get();
@@ -18,6 +18,7 @@ public class MainCash {
 		this.explosionFire = cfg.explosionFire.get();
 		this.triggerOnStep = cfg.triggerOnStep.get();
 		this.dropDestroyedBlocks = cfg.dropDestroyedBlocks.get();
+		this.debug = cfg.debug.get();
 
 		this.dimensionBlacklist = cfg.dimensionBlacklist.get();
 	}

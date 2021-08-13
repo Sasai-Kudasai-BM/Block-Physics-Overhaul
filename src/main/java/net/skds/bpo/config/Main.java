@@ -12,7 +12,7 @@ public class Main {
     public final ForgeConfigSpec.ConfigValue<List<String>> dimensionBlacklist;
     public final ForgeConfigSpec.IntValue downCheckLimit, maxQueueLen, maxFallingBlocks;
     public final ForgeConfigSpec.DoubleValue damageMultiplier, explosionMultiplier;
-    public final ForgeConfigSpec.BooleanValue dropDestroyedBlocks, triggerOnStep, explosionFire;
+    public final ForgeConfigSpec.BooleanValue dropDestroyedBlocks, triggerOnStep, explosionFire, debug;
 
     private static final List<String> DL = new ArrayList<>();
 
@@ -34,6 +34,8 @@ public class Main {
         explosionFire = builder.apply("explosionFire").comment("UwU").define("explosionFire", true);
 
         dimensionBlacklist = builder.apply("dimensionBlacklist").comment("UwU").define("dimensionBlacklist", DL);
+
+        debug = builder.apply("debug").comment("UwU").define("debug", false);
 
         innerBuilder.pop();
     }

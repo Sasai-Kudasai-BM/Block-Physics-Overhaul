@@ -304,6 +304,7 @@ public class BFExecutor extends BasicExecutor {
 		fall(pos);
 	}
 
+	@SuppressWarnings("unused")
 	private boolean tryHang(BlockPos pos0, BlockState state0, BlockPhysicsPars param0, float force) {
 		ChunkSectionAdditionalData csad = reader.getCSAD(pos, false);
 		if (csad == null) {
