@@ -1,5 +1,8 @@
 package net.skds.bpo.blockphysics;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -55,8 +58,6 @@ public class CustomExplosion {
 	// private Long2ObjectArrayMap<Vector3d> vectorFieldOld = new
 	// Long2ObjectArrayMap<>();
 	private Long2ObjectArrayMap<FieldEntry> vectorField = new Long2ObjectArrayMap<>();
-	private Long2ObjectArrayMap<FieldEntry> vectorFieldOld = new Long2ObjectArrayMap<>();
-	private Long2ObjectArrayMap<FieldEntry> vectorFieldVeryOld = new Long2ObjectArrayMap<>();
 
 	private final Vector3d position;
 	private final BlockPos positionB;
@@ -87,15 +88,8 @@ public class CustomExplosion {
 
 	private void step0() {
 		double pow = power * decayFuncAndCash(power, positionB) / 6;
-		vectorFieldOld.put(positionB.toLong(), new FieldEntry(Direction.UP, 1));
-		for (Direction dir : Direction.values()) {
-			BlockPos pos2 = positionB.offset(dir);
-			//Vector3d powVec = new Vector3d(pos2.getX() + 0.5, pos2.getY() + 0.5, pos2.getZ() + 0.5).subtract(position)
-			//		.scale(pow);
-			fillField(pos2, new FieldEntry(dir, pow));
-		}
-		swapField();
-		while (!vectorFieldOld.isEmpty()) {
+		fillField(new FieldEntry(position, new Vector3d(positionB.getX(), positionB.getY(), positionB.getZ()), pow));
+		while (!vectorField.isEmpty()) {
 			iterateField();
 		}
 	}
@@ -135,57 +129,39 @@ public class CustomExplosion {
 		dataMap.put(pos.toLong(), new Pair<BlockState, BlockPhysicsPars>(state, par));
 	}
 
-	private double fillField(BlockPos pos, FieldEntry e) {
+	private void fillField(FieldEntry e) {
+		long l = pack(e.position);
 		if (e.pressure < 2E-2) {
 			for (PlayerEntity pl : world.getPlayers()) {
-				PacketHandler.send(pl, new DebugPacket(pos));
-			}
-			return 0.0;
-		}
-		long l = pos.toLong();
-		FieldEntry samp = vectorField.put(l, e);
-		if (samp != null) {
-			return e.add(samp);
-		}
-		return 0.0;
-	}
-
-	private void fillFieldStrict(BlockPos pos, FieldEntry e) {
-		long l = pos.toLong();
-		//vectorField.put(l, e);		
-		FieldEntry samp = vectorField.put(l, e);
-		if (samp != null) {
-			e.addStrict(e);
-		}
-	}
-
-	private boolean hasOld(BlockPos pos, double pressure) {
-		long l = pos.toLong();
-		FieldEntry e = vectorFieldVeryOld.get(l);
-		if (e != null && e.pressure > pressure / 3) {
-			return true;
-		} else {
-			e = vectorFieldOld.get(l);
-			if (e != null && e.pressure > pressure / 3) {
-				return true;
+				PacketHandler.send(pl, new DebugPacket(BlockPos.fromLong(l)));
 			}
 		}
-		return false;
+		FieldEntry samp = vectorField.put(l, e);
+		if (samp != null) {
+			e.add(samp);
+		}
 	}
 
-	private void swapField() {
-		vectorFieldVeryOld = vectorFieldOld;
-		vectorFieldOld = vectorField;
-		vectorField = new Long2ObjectArrayMap<>();
+	private void swapField() {		
+		Long2ObjectArrayMap<FieldEntry> vf2 = new Long2ObjectArrayMap<>();
+		vectorField.forEach((l, e) -> {
+			e.incGen();
+			if (e.generation <= 2) {
+				vf2.put((long) l, e);
+			}
+		});
 	}
 
 	private void iterateField() {
-		vectorFieldOld.forEach(this::fieldIter);
+		vectorField.forEach(this::fieldIter);
 		swapField();
 	}
 
 	private void fieldIter(long p, FieldEntry e) {
-		Vector3d vec = e.result;
+		if (e.generation < 1) {
+			return;
+		}
+		Vector3d vec = e.getDirection();
 		double pow = e.pressure;
 		if (pow < 2E-2) {
 			e.pressure = 0;
@@ -243,42 +219,34 @@ public class CustomExplosion {
 
 		double pow2 = pow * mp;
 
-		double[] arr = new double[6];
-		double si = 0;
-
 		int i = 0;
-		Map<BlockPos, Direction> pre = new HashMap<>(8);
+		Set<Vector3d> pre = new HashSet<>(8);
+
+		List<FieldEntry> neib = e.getNeib();
+
 		for (Direction dir : Direction.values()) {
 			Vector3d director = new Vector3d(dir.getXOffset(), dir.getYOffset(), dir.getZOffset());
-			double summ = director.dotProduct(vec.normalize());
-			if (summ < -0.5 || e.dir.getOpposite() == dir) {
-				//continue;
-			}
-			BlockPos posa = point.offset(dir);
-			if (hasOld(posa, pow2)) {
+			if (hasOld(neib, e.generation)) {
 				continue;
 			}
-			double s = summ + 1;
-			//s *= s;
-			arr[dir.getIndex()] = s;
-			si += s;
 			i++;
-			pre.put(posa, dir);
+			pre.add(e.position.add(director));
 		}
 
-		double extra = 0.0;
+		double p2 = pow2 / i;
 
-		for (Map.Entry<BlockPos, Direction> en : pre.entrySet()) {
-			BlockPos pos = en.getKey();
-			Direction dir = en.getValue();
-			double ref = fillField(pos, new FieldEntry(dir, pow2 * arr[dir.getIndex()] / si));
-			extra += ref;
+		for (Vector3d v : pre) {
+			fillField(new FieldEntry(v, e.position, p2));
 		}
+	}
 
-		if (extra > 0) {
-			Direction offset = Direction.getFacingFromVector(e.result.x, e.result.y, e.result.z);
-			fillFieldStrict(point.offset(offset), new FieldEntry(e.dir, extra));
+	private static boolean hasOld(List<FieldEntry> neib, int gen) {
+		for (FieldEntry e : neib) {
+			if (e.generation > gen) {
+				return true;
+			}
 		}
+		return false;
 	}
 
 	private BlockState explodeConvert(BlockState state, double pressure) {
@@ -289,38 +257,69 @@ public class CustomExplosion {
 		return state;
 	}
 
-	private static class FieldEntry {
+	private class FieldEntry {
+		public int generation = 0;
 		public double pressure;
-		public Direction dir;
-		public Vector3d result;
+		public Vector3d position;
+		public Vector3d from;
 
-		FieldEntry(Direction dir, double pressure) {
-			this.result = new Vector3d(dir.getXOffset() * pressure, dir.getYOffset() * pressure,
-					dir.getZOffset() * pressure);
+		FieldEntry(Vector3d position, Vector3d from, double pressure) {
 			this.pressure = pressure;
-			this.dir = dir;
+			this.position = position;
+			this.from = from;
 		}
 
-		public double add(FieldEntry e) {
-			if (e.pressure > pressure) {
-				dir = e.dir;
+		public List<FieldEntry> getNeib() {
+			List<FieldEntry> list = new ArrayList<>();
+			for (long l : getNeibPos(this)) {
+				FieldEntry fe = vectorField.get(l);
+				if (fe != null) {
+					list.add(fe);
+				}
 			}
-			pressure += e.pressure;
-			double ret = pressure;
-
-			//ret -= pressure /= 1.41421356;
-			ret = 0;
-
-			result = result.add(e.result).normalize().scale(pressure);
-			return ret;
+			return list;
 		}
 
-		public void addStrict(FieldEntry e) {
-			if (e.pressure > pressure) {
-				dir = e.dir;
+		public Vector3d getDirection() {
+			return position.subtract(from).normalize();
+		}
+
+		public void add(FieldEntry e) {
+			generation = Math.max(generation, e.generation);
+			pressure += e.pressure;
+			position = position.add(e.position).scale(0.5);
+			from = from.add(e.from).scale(0.5);
+		}
+
+		public void incGen() {
+			generation++;
+		}
+	}
+
+	private static long[] getNeibPos(FieldEntry fe) {
+		long[] array = new long[0];
+		int x0 = (int) Math.floor(fe.position.x) - 1;
+		int y0 = (int) Math.floor(fe.position.y) - 1;
+		int z0 = (int) Math.floor(fe.position.z) - 1;
+		int xe = x0 + 2;
+		int ye = y0 + 2;
+		int ze = z0 + 2;
+		for (int x = x0; x <= xe; x++) {
+			for (int y = y0; y <= ye; y++) {
+				for (int z = z0; z <= ze; z++) {
+					int len0 = array.length;
+					array = Arrays.copyOf(array, len0 + 1);
+					array[len0] = BlockPos.pack(x, y, z);
+				}
 			}
-			pressure += e.pressure;
-			result = result.add(e.result).normalize().scale(pressure);
 		}
+		return array;
+	}
+
+	private static long pack(Vector3d pos) {
+		int x = (int) Math.floor(pos.x);
+		int y = (int) Math.floor(pos.y);
+		int z = (int) Math.floor(pos.z);
+		return BlockPos.pack(x, y, z);
 	}
 }
