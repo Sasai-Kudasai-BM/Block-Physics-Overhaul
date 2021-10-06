@@ -27,11 +27,11 @@ public class Main {
         downCheckLimit = builder.apply("downCheckLimit").comment("UwU").defineInRange("downCheckLimit", 30, -1, 1024);
 
         damageMultiplier = builder.apply("damageMultiplier").comment("UwU").defineInRange("damageMultiplier", 1.0, 0.0, 999999.0);
-        explosionMultiplier = builder.apply("explosionMultiplier").comment("UwU").defineInRange("explosionMultiplier", 1.0, 0.0, 999999.0);
+        explosionMultiplier = builder.apply("explosionMultiplier").comment("WIP").defineInRange("explosionMultiplier", 1.0, 0.0, 999999.0);
 
         dropDestroyedBlocks = builder.apply("dropDestroyedBlocks").comment("UwU").define("dropDestroyedBlocks", true);
         triggerOnStep = builder.apply("triggerOnStep").comment("UwU").define("triggerOnStep", true);
-        explosionFire = builder.apply("explosionFire").comment("UwU").define("explosionFire", true);
+        explosionFire = builder.apply("explosionFire").comment("WIP").define("explosionFire", true);
 
         dimensionBlacklist = builder.apply("dimensionBlacklist").comment("UwU").define("dimensionBlacklist", DL);
 

@@ -7,6 +7,7 @@ import java.util.concurrent.ConcurrentSkipListSet;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.server.ServerWorld;
 import net.skds.bpo.BPOConfig;
 import net.skds.bpo.entity.AdvancedFallingBlockEntity;
@@ -43,7 +44,6 @@ public class WWS implements IWWS {
 		}
 	};
 
-	
 	public static int E_COUNT = 0;
 
 	private ConcurrentHashMap<BFTask, Integer> delayedTasks = new ConcurrentHashMap<>();
@@ -83,7 +83,7 @@ public class WWS implements IWWS {
 
 		AdvancedFallingBlockEntity e;
 		if ((e = AFBETasks.poll()) != null) {
-			E_COUNT++;			
+			E_COUNT++;
 			return new ETask(e);
 		}
 
@@ -165,7 +165,7 @@ public class WWS implements IWWS {
 	}
 
 	@Override
-	public void tickOut() {		
+	public void tickOut() {
 		// System.out.println(TASKS.size());
 		//System.out.println(AFBETasks.size());
 		// System.out.println(delayedTasks.size());

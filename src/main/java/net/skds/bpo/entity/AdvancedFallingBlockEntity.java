@@ -12,6 +12,7 @@ import net.minecraft.crash.CrashReportCategory;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityClassification;
 import net.minecraft.entity.EntityType;
+import net.minecraft.fluid.FluidState;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.INBT;
 import net.minecraft.nbt.NBTUtil;
@@ -39,6 +40,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.fml.common.registry.IEntityAdditionalSpawnData;
 import net.minecraftforge.fml.network.NetworkHooks;
+import net.skds.bpo.BPO;
 import net.skds.bpo.BPOConfig;
 import net.skds.bpo.blockphysics.BFExecutor;
 import net.skds.bpo.blockphysics.WWS;
@@ -124,7 +126,7 @@ public class AdvancedFallingBlockEntity extends Entity implements IEntityAdditio
 			dataManager.set(SLIDE_DIRECTION, (byte) -1);
 			//slidePos = dataManager.get(SLIDE_POS);
 			//if (slidePos.equals(BlockPos.ZERO)) {
-				slidePos = getPosition();
+			slidePos = getPosition();
 			//}
 			slideDirectionV = slideDirection;
 			slideProgress = 0;
@@ -134,7 +136,7 @@ public class AdvancedFallingBlockEntity extends Entity implements IEntityAdditio
 	public void syncData() {
 		if (world.isRemote) {
 			slideDirection = dataManager.get(SLIDE_DIRECTION);
-				startSlide();
+			startSlide();
 
 		} else {
 			dataManager.set(SLIDE_DIRECTION, slideDirection);
@@ -348,7 +350,11 @@ public class AdvancedFallingBlockEntity extends Entity implements IEntityAdditio
 	private void set() {
 
 		synchronized (world) {
+
 			BlockPos blockpos1 = this.getPosition();
+			if (BPO.hasWPO()) {
+				displaceFluid(blockpos1);
+			}
 			// this.world.setBlockState(blockpos1,
 			// this.fallTile.updatePostPlacement(Direction.UP, fallTile, world, blockpos1,
 			// blockpos1), 3);
@@ -459,7 +465,7 @@ public class AdvancedFallingBlockEntity extends Entity implements IEntityAdditio
 			setMotion(motion);
 		} else {
 			setMotion(0, -0.2, 0);
-		}		
+		}
 
 		BlockPos blockpos = this.getOnPosition();
 		BlockState blockstate = this.world.getBlockState(blockpos);
@@ -487,6 +493,31 @@ public class AdvancedFallingBlockEntity extends Entity implements IEntityAdditio
 			}
 		}
 		setPosition(getPosX(), getPosY() + 1, getPosZ());
+	}
+
+	private void displaceFluid(BlockPos pos) {
+		FluidState fs = world.getFluidState(pos);
+		if (!fs.isEmpty()) {
+			for (int i = 0; i < 20; i++) {
+
+				BlockState state = world.getBlockState(pos);
+				if (state.getMaterial() == Material.AIR) {
+					world.setBlockState(pos, fs.getBlockState(), 3);
+					return;
+				}
+
+				for (Direction dir : Direction.Plane.HORIZONTAL) {
+					BlockPos pos2 = pos.offset(dir);
+					BlockState state2 = world.getBlockState(pos2);
+					if (state2.getMaterial() == Material.AIR) {
+						world.setBlockState(pos2, fs.getBlockState(), 3);
+						return;
+					}
+				}
+
+				pos = pos.up();
+			}
+		}
 	}
 
 	private Vector3d onCollision(Vector3d motion, Vector3d maxMove) {
@@ -534,9 +565,8 @@ public class AdvancedFallingBlockEntity extends Entity implements IEntityAdditio
 		}
 
 		landConvert(motion.length() * 20);
-		
 
-		double friction = 0.5D;
+		double friction = (fallTime < 0) ? 0.0 : 0.5D;
 
 		boolean collideX = motion.x != maxMove.x;
 		boolean collideY = motion.y != maxMove.y;
@@ -610,7 +640,7 @@ public class AdvancedFallingBlockEntity extends Entity implements IEntityAdditio
 
 		ReuseableStream<VoxelShape> reuseablestream;
 		//if (world.isRemote || crm) {
-		if (world.isRemote || crmTm > 10) {
+		if (world.isRemote || crmTm > 10 || fallTime < 0) {
 			reuseablestream = new ReuseableStream<>(stream);
 		} else {
 			Set<AxisAlignedBB> set = wws.collisionMap.getBoxesExeptE(this, axisalignedbb.expand(vec));
@@ -753,7 +783,7 @@ public class AdvancedFallingBlockEntity extends Entity implements IEntityAdditio
 		}
 	}
 
-	private void refteshPars() {		
+	private void refteshPars() {
 		this.pars = getParam(this.fallTile);
 		this.conv = BFUtils.getConvParam(this.fallTile.getBlock());
 	}

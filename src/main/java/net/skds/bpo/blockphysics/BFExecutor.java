@@ -119,11 +119,11 @@ public class BFExecutor extends BasicExecutor {
 
 	public static Direction[] getAllRandomizedDirections(Random r) {
 
-		Direction[] dirs = new Direction[4];
+		Direction[] dirs = new Direction[6];
 
 		int i0 = r.nextInt(6);
 		for (int index = 0; index < 6; ++index) {
-			Direction dir = Direction.byHorizontalIndex((index + i0) % 6);
+			Direction dir = Direction.byIndex((index + i0) % 6);
 			dirs[index] = dir;
 		}
 

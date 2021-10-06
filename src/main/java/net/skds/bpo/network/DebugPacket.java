@@ -29,7 +29,7 @@ public class DebugPacket {
 	void handle(Supplier<NetworkEvent.Context> context) {
 		Minecraft minecraft = Minecraft.getInstance();
 		ClientWorld w = (ClientWorld) minecraft.player.world;
-		w.addParticle(ParticleTypes.FLAME, pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, 0, 0.06, 0);
+		w.addParticle(ParticleTypes.FLAME, pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, 0, 0.0, 0);
 		w.setBlockState(pos, Blocks.OAK_PLANKS.getDefaultState());
 		context.get().setPacketHandled(true);
 	}

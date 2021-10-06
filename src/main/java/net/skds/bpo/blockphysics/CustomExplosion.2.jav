@@ -3,6 +3,7 @@ package net.skds.bpo.blockphysics;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -58,6 +59,8 @@ public class CustomExplosion {
 	// private Long2ObjectArrayMap<Vector3d> vectorFieldOld = new
 	// Long2ObjectArrayMap<>();
 	private Long2ObjectArrayMap<FieldEntry> vectorField = new Long2ObjectArrayMap<>();
+	private Long2ObjectArrayMap<FieldEntry> vectorFieldNew = new Long2ObjectArrayMap<>();
+	private Long2ObjectArrayMap<FieldEntry> vectorFieldNew2 = new Long2ObjectArrayMap<>();
 
 	private final Vector3d position;
 	private final BlockPos positionB;
@@ -87,8 +90,9 @@ public class CustomExplosion {
 	}
 
 	private void step0() {
-		double pow = power * decayFuncAndCash(power, positionB) / 6;
-		fillField(new FieldEntry(position, new Vector3d(positionB.getX(), positionB.getY(), positionB.getZ()), pow));
+		//double pow = power * decayFuncAndCash(power, positionB) / 6;
+		fillField(new FieldEntry(position, new Vector3d(positionB.getX(), positionB.getY(), positionB.getZ()), power));
+		swapField();
 		while (!vectorField.isEmpty()) {
 			iterateField();
 		}
@@ -132,17 +136,42 @@ public class CustomExplosion {
 	private void fillField(FieldEntry e) {
 		long l = pack(e.position);
 		if (e.pressure < 2E-2) {
-			for (PlayerEntity pl : world.getPlayers()) {
-				PacketHandler.send(pl, new DebugPacket(BlockPos.fromLong(l)));
-			}
+			//for (PlayerEntity pl : world.getPlayers()) {
+			//	PacketHandler.send(pl, new DebugPacket(BlockPos.fromLong(l)));
+			//}
 		}
-		FieldEntry samp = vectorField.put(l, e);
+		FieldEntry samp = vectorFieldNew.put(l, e);
 		if (samp != null) {
 			e.add(samp);
 		}
 	}
 
-	private void swapField() {		
+	private void fillFieldStrict(FieldEntry e) {
+		long l = pack(e.position);
+		vectorFieldNew.put(l, e);
+	}
+
+	private void interpolate() {
+		vectorFieldNew.forEach(this::interpolation);
+	}
+
+	private void interpolation(long p, FieldEntry e) {
+		int i = 0;
+		double s = 0;
+		for (FieldEntry en : e.getNeib().values()) {
+			i++;
+			s += en.pressure;
+		}
+		FieldEntry en2 = new FieldEntry(e.position, e.from, e.pressure);
+		if (i > 0) {
+			en2.pressure = s / i;
+		}
+		vectorFieldNew2.put(p, en2);
+	}
+
+	private void swapField() {
+		interpolate();
+
 		Long2ObjectArrayMap<FieldEntry> vf2 = new Long2ObjectArrayMap<>();
 		vectorField.forEach((l, e) -> {
 			e.incGen();
@@ -150,27 +179,40 @@ public class CustomExplosion {
 				vf2.put((long) l, e);
 			}
 		});
+		vectorFieldNew2.forEach((l, e) -> {
+			e.incGen();
+			vf2.put((long) l, e);
+		});
+		vectorFieldNew.clear();
+		vectorFieldNew2.clear();
+		vectorField = vf2;
 	}
 
 	private void iterateField() {
+		//List<FieldEntry> val = new ArrayList<>(vectorField.values());
+		//Collections.shuffle(val);
+		//for (FieldEntry e : val) {
+		//	fieldIter(pack(e.position), e);
+		//}
+
 		vectorField.forEach(this::fieldIter);
 		swapField();
 	}
 
 	private void fieldIter(long p, FieldEntry e) {
-		if (e.generation < 1) {
+		if (e.generation > 1) {
 			return;
 		}
 		Vector3d vec = e.getDirection();
 		double pow = e.pressure;
 		if (pow < 2E-2) {
+			for (PlayerEntity pl : world.getPlayers()) {
+				PacketHandler.send(pl, new DebugPacket(BlockPos.fromLong(p)));
+			}
 			e.pressure = 0;
 			return;
 		}
 		BlockPos point = BlockPos.fromLong(p);
-		//for (PlayerEntity pl : world.getPlayers()) {
-		//	PacketHandler.send(pl, new DebugPacket(point));
-		//}
 		double mp = decayFuncAndCash(pow, point);
 		if (mp <= 0) {
 			e.pressure = 0;
@@ -222,15 +264,34 @@ public class CustomExplosion {
 		int i = 0;
 		Set<Vector3d> pre = new HashSet<>(8);
 
-		List<FieldEntry> neib = e.getNeib();
+		Long2ObjectArrayMap<FieldEntry> neib = e.getNeib();
 
-		for (Direction dir : Direction.values()) {
+		List<Vector3d> dirL = new ArrayList<>();
+		dirL.add(e.position.add(0, -1, 0));
+		dirL.add(e.position.add(0, 1, 0));
+		for (Direction dir : Direction.Plane.HORIZONTAL) {
+			Direction dir2 = dir.rotateY();
 			Vector3d director = new Vector3d(dir.getXOffset(), dir.getYOffset(), dir.getZOffset());
-			if (hasOld(neib, e.generation)) {
+			Vector3d director2 = director.add(dir2.getXOffset(), dir2.getYOffset(), dir2.getZOffset()).add(0, 1, 0);
+			Vector3d director3 = director2.add(0, -2, 0);
+			
+			Vector3d pos2 = e.position.add(director);
+
+			Vector3d pos3u = e.position.add(director2.normalize());
+			Vector3d pos3d = e.position.add(director3.normalize());
+			
+
+			dirL.add(pos2);
+			dirL.add(pos3d);
+			dirL.add(pos3u);
+		}
+
+		for (Vector3d vr : dirL) {
+			if (hasOld(neib, e.generation, vr)) {
 				continue;
 			}
 			i++;
-			pre.add(e.position.add(director));
+			pre.add(vr);
 		}
 
 		double p2 = pow2 / i;
@@ -240,13 +301,22 @@ public class CustomExplosion {
 		}
 	}
 
-	private static boolean hasOld(List<FieldEntry> neib, int gen) {
-		for (FieldEntry e : neib) {
-			if (e.generation > gen) {
+	private boolean hasOld(Long2ObjectArrayMap<FieldEntry> list, int gen, Vector3d position) {
+		FieldEntry e = vectorField.get(pack(position));
+		if (e != null && e.generation > gen) {
+			//if (e.position.subtract(position).lengthSquared() < 1) {
 				return true;
-			}
+			//}
 		}
 		return false;
+	}
+
+	private double getPressure(Long2ObjectArrayMap<FieldEntry> list, Vector3d position) {
+		FieldEntry e = vectorFieldNew.get(pack(position));
+		if (e != null) {
+			return e.pressure;
+		}
+		return 0;
 	}
 
 	private BlockState explodeConvert(BlockState state, double pressure) {
@@ -269,12 +339,12 @@ public class CustomExplosion {
 			this.from = from;
 		}
 
-		public List<FieldEntry> getNeib() {
-			List<FieldEntry> list = new ArrayList<>();
+		public Long2ObjectArrayMap<FieldEntry> getNeib() {
+			Long2ObjectArrayMap<FieldEntry> list = new Long2ObjectArrayMap<>();
 			for (long l : getNeibPos(this)) {
-				FieldEntry fe = vectorField.get(l);
-				if (fe != null) {
-					list.add(fe);
+				FieldEntry fe = vectorFieldNew.get(l);
+				if (fe != null && fe != this) {
+					list.put(l, fe);
 				}
 			}
 			return list;

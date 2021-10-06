@@ -11,7 +11,7 @@ import net.minecraftforge.event.world.ExplosionEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.server.FMLServerStartedEvent;
-import net.skds.bpo.blockphysics.CustomExplosion;
+import net.skds.bpo.blockphysics.ExplosionPlug;
 import net.skds.bpo.blockphysics.WWS;
 import net.skds.bpo.mixins.ExplosionMixin;
 import net.skds.bpo.network.Packets;
@@ -93,15 +93,14 @@ public class Events {
 	}
 
 	@SubscribeEvent
-	public void onExplode0(ExplosionEvent.Start e) {
+	public void onExplode0(ExplosionEvent.Detonate e) {
 		World world = e.getWorld();
 		Explosion ex = e.getExplosion();
 		//BPOConfig.cash();
 		//System.out.println(BPOConfig.MAIN.explosionMultiplier);
-		CustomExplosion ce = new CustomExplosion(world, ex.getPosition(),
-				((ExplosionMixin) ex).getPower() * (float) BPOConfig.MAIN.explosionMultiplier, ex.getExploder(), false,
-				ex);
-		ce.doExplode();
-		e.setCanceled(true);
+		ExplosionPlug ep = new ExplosionPlug(world, ex.getPosition(),
+				((ExplosionMixin) ex).getPower() * (float) BPOConfig.MAIN.explosionMultiplier, ex);
+		ep.explode();
+		//e.setCanceled(true);
 	}
 }
