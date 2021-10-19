@@ -13,13 +13,17 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.Explosion;
 import net.minecraft.world.World;
+import net.minecraft.world.chunk.Chunk;
+import net.minecraft.world.chunk.ChunkSection;
 import net.minecraft.world.server.ServerWorld;
 import net.skds.bpo.BPOConfig;
 import net.skds.bpo.blockphysics.BFTask.Type;
 import net.skds.bpo.entity.AdvancedFallingBlockEntity;
 import net.skds.bpo.util.BFUtils;
+import net.skds.bpo.util.data.ChunkData;
 import net.skds.bpo.util.pars.BlockPhysicsPars;
 import net.skds.core.api.IWorldExtended;
+import net.skds.core.util.data.ChunkSectionAdditionalData;
 
 public class BFManager {
 
@@ -70,13 +74,27 @@ public class BFManager {
 		addTask(w, pos, state, Type.UPDATE);
 	}
 
-	public static void addOnAddedTask(ServerWorld w, BlockPos pos, BlockState state, BlockState oldState) {
+	public static void addOnAddedTask(ServerWorld w, BlockPos pos, BlockState state, BlockState oldState, int flags, Chunk chunk) {
+
+		boolean flag16 = (flags & 16) != 0;
+		
+		ChunkSection section = chunk.getSections()[pos.getY() >> 4];
+		if (section != null) {
+			ChunkData data = ChunkSectionAdditionalData.getTypedFromSection(section, ChunkData.class);
+			data.setNatural(pos.getX(), pos.getY(), pos.getZ(), flag16);
+		}
+
+		if (flag16) {
+			return;
+		}
+
 		Block b = state.getBlock();
 		Block bo = oldState.getBlock();
 		//if (!(b instanceof FlowingFluidBlock)) {
 		if (b instanceof FlowingFluidBlock || bo instanceof FlowingFluidBlock) {
 			return;
 		}
+
 		if (state.getMaterial() != Material.AIR) {
 			addTask(w, pos, state, Type.PLACED);
 		} else if (BFUtils.getParam(oldState.getBlock(), pos, w).diagonal) {

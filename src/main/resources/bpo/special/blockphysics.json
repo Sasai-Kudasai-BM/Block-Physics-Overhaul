@@ -13,7 +13,6 @@
 		"slide": false,
 		"hanging": false,
 		"attach": true,
-		"diagonal": false,
 		"attachIgnore": [],
 		"blocks": [
 			"#minecraft:planks",
@@ -34,7 +33,6 @@
 		"slide": false,
 		"hanging": false,
 		"attach": false,
-		"diagonal": false,
 		"attachIgnore": [],
 		"blocks": [
 			"#forge:cobblestone"
@@ -54,7 +52,6 @@
 		"slide": false,
 		"hanging": false,
 		"attach": false,
-		"diagonal": false,
 		"attachIgnore": [],
 		"blocks": [
 			"#forge:stone",
@@ -75,7 +72,6 @@
 		"slide": true,
 		"hanging": false,
 		"attach": false,
-		"diagonal": false,
 		"attachIgnore": [],
 		"blocks": [
 			"#forge:dirt",
@@ -97,7 +93,6 @@
 		"slide": false,
 		"hanging": false,
 		"attach": false,
-		"diagonal": false,
 		"attachIgnore": [],
 		"blocks": [
 			"minecraft:grass_block",
@@ -118,7 +113,6 @@
 		"slide": false,
 		"hanging": false,
 		"attach": false,
-		"diagonal": false,
 		"attachIgnore": [],
 		"blocks": [
 			"#forge:sandstone"
@@ -138,7 +132,6 @@
 		"slide": false,
 		"hanging": false,
 		"attach": false,
-		"diagonal": false,
 		"attachIgnore": [],
 		"blocks": [
 			"minecraft:glowstone",
@@ -160,7 +153,6 @@
 		"slide": false,
 		"hanging": false,
 		"attach": false,
-		"diagonal": false,
 		"attachIgnore": [],
 		"blocks": [
 			"#minecraft:carpets",
@@ -181,7 +173,6 @@
 		"slide": false,
 		"hanging": false,
 		"attach": true,
-		"diagonal": false,
 		"attachIgnore": [],
 		"blocks": [
 			"#minecraft:wool"
@@ -201,14 +192,32 @@
 		"slide": false,
 		"hanging": false,
 		"attach": true,
-		"diagonal": true,
 		"attachIgnore": [
 			"#minecraft:leaves",
 			"#minecraft:wart_blocks"
 		],
 		"blocks": [
 			"#minecraft:logs"
-		]
+		],
+		"natural": {
+			"minecraft:the_nether": {
+				"mass": 2000.0,
+				"strength": 50.0,
+				"bounce": 0.0,
+				"slideChance": 0.5,
+				"radial": 0,
+				"linear": 0,
+				"arc": 0,
+				"falling": false,
+				"ceiling": false,
+				"fragile": false,
+				"slide": false,
+				"hanging": false,
+				"attach": true,
+				"diagonal": true,
+				"attachIgnore": []
+			}
+		}
 	},
 	"leaves": {
 		"mass": 50.0,
@@ -224,7 +233,6 @@
 		"slide": false,
 		"hanging": false,
 		"attach": false,
-		"diagonal": false,
 		"attachIgnore": [
 			"#minecraft:logs"
 		],
@@ -247,7 +255,6 @@
 		"slide": false,
 		"hanging": false,
 		"attach": false,
-		"diagonal": false,
 		"attachIgnore": [],
 		"blocks": [
 			"#minecraft:flower_pots",
@@ -268,7 +275,6 @@
 		"slide": false,
 		"hanging": false,
 		"attach": true,
-		"diagonal": false,
 		"attachIgnore": [],
 		"blocks": [
 			"minecraft:end_stone"
@@ -288,7 +294,6 @@
 		"slide": false,
 		"hanging": false,
 		"attach": true,
-		"diagonal": false,
 		"attachIgnore": [],
 		"blocks": [
 			"minecraft:netherrack",
@@ -328,7 +333,6 @@
 		"slide": true,
 		"hanging": false,
 		"attach": false,
-		"diagonal": false,
 		"attachIgnore": [],
 		"blocks": [
 			"minecraft:soul_sand",
@@ -368,7 +372,6 @@
 		"slide": false,
 		"hanging": false,
 		"attach": false,
-		"diagonal": false,
 		"attachIgnore": [],
 		"blocks": [
 			"minecraft:scaffolding"
@@ -388,7 +391,6 @@
 		"slide": false,
 		"hanging": false,
 		"attach": true,
-		"diagonal": false,
 		"attachIgnore": [],
 		"blocks": [
 			"minecraft:slime_block"

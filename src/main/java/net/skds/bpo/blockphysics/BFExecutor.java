@@ -22,7 +22,7 @@ import net.skds.bpo.BPOConfig;
 import net.skds.bpo.blockphysics.BFTask.Type;
 import net.skds.bpo.entity.AdvancedFallingBlockEntity;
 import net.skds.bpo.util.BFUtils;
-import net.skds.bpo.util.data.ChunkSectionData;
+import net.skds.bpo.util.data.ChunkData;
 import net.skds.bpo.util.pars.BlockPhysicsPars;
 import net.skds.bpo.util.pars.ConversionPars;
 import net.skds.core.util.blockupdate.BasicExecutor;
@@ -57,7 +57,7 @@ public class BFExecutor extends BasicExecutor {
 	}
 
 	@Override
-	protected void applyAction(BlockPos pos, BlockState newState, BlockState oldState, ServerWorld world) {
+	protected void applyAction(BlockPos pos, BlockState newState, BlockState oldState, World world) {
 		if (newState == oldState) {
 			return;
 		}
@@ -89,6 +89,8 @@ public class BFExecutor extends BasicExecutor {
 				newState.updateNeighbours(world, pos, 0);
 
 				newState.onBlockAdded(world, pos, oldState, false);
+
+				BFManager.addOnAddedTask((ServerWorld) w, pos, newState, oldState, 3, chunk);
 			}
 		}
 
@@ -132,6 +134,10 @@ public class BFExecutor extends BasicExecutor {
 
 	@Override
 	public void run() {
+		int h = pos.getY() >> 4;
+		if (h > 16 || h < 0) {
+			return;
+		}
 		Chunk chunk = getChunk(pos);
 		if (chunk == null) {
 			return;
@@ -140,6 +146,15 @@ public class BFExecutor extends BasicExecutor {
 				|| !chunk.getLocationType().isAtLeast(ChunkHolder.LocationType.ENTITY_TICKING)) {
 			return;
 		}
+		//ChunkSection section = chunk.getSections()[h];
+		//if (section == null) {
+		//	return;
+		//}
+		//ChunkData chunkData = ChunkSectionAdditionalData.getTypedFromSection(section, ChunkData.class);
+		//if (chunkData.isNatural(pos.getX(), pos.getY(), pos.getZ())) {
+		//	return;
+		//}
+
 		runS();
 	}
 
@@ -310,7 +325,7 @@ public class BFExecutor extends BasicExecutor {
 		if (csad == null) {
 			return false;
 		}
-		ChunkSectionData csd = csad.getData(ChunkSectionData.class);
+		ChunkData csd = csad.getData(ChunkData.class);
 		if (csd == null) {
 
 		}
@@ -801,6 +816,10 @@ public class BFExecutor extends BasicExecutor {
 		int lim = BPOConfig.MAIN.downCheckLimit;
 		if (lim != -1 && lim <= task.counter) {
 			return;
+		}
+		//BPO.LOGGER.info(pos + "  " + p);
+		if (p.getY() >= pos.getY()) {
+			p = new BlockPos(p.getX(), pos.getY() - 1, p.getZ());
 		}
 		BFTask newTask = new BFTask(castOwner, p, Type.DOWNRAY);
 		newTask.counter = task.counter + 1;

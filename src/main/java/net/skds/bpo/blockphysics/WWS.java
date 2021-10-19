@@ -1,13 +1,11 @@
 package net.skds.bpo.blockphysics;
 
-import java.util.Comparator;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ConcurrentSkipListSet;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.server.ServerWorld;
 import net.skds.bpo.BPOConfig;
 import net.skds.bpo.entity.AdvancedFallingBlockEntity;
@@ -29,25 +27,10 @@ public class WWS implements IWWS {
 
 	public final CollisionMap collisionMap;
 
-	private static final Comparator<BFTask> comp = new Comparator<BFTask>() {
-		@Override
-		public int compare(BFTask k1, BFTask k2) {
-			if (k1.pos == k2.pos && k1.owner == k2.owner) {
-				return 0;
-			}
-			double dcomp = (k1.getPriority() - k2.getPriority());
-			int comp = (int) dcomp;
-			if (comp == 0) {
-				comp = dcomp > 0 ? 1 : -1;
-			}
-			return comp;
-		}
-	};
-
 	public static int E_COUNT = 0;
 
 	private ConcurrentHashMap<BFTask, Integer> delayedTasks = new ConcurrentHashMap<>();
-	private static ConcurrentSkipListSet<BFTask> TASKS = new ConcurrentSkipListSet<>(comp);
+	private static ConcurrentSkipListSet<BFTask> TASKS = new ConcurrentSkipListSet<>(WWS::compare);
 	private static int T_COUNT = 0;
 	private static ConcurrentLinkedQueue<AdvancedFallingBlockEntity> AFBETasks = new ConcurrentLinkedQueue<>();
 
@@ -57,6 +40,18 @@ public class WWS implements IWWS {
 		inBlacklist = BPOConfig.MAIN.dimensionBlacklist.contains(dimId);
 		glob = owner;
 		collisionMap = new CollisionMap(this);
+	}
+
+	public static int compare(BFTask k1, BFTask k2) {
+		if (k1.pos == k2.pos && k1.owner == k2.owner) {
+			return 0;
+		}
+		double dcomp = (k1.getPriority() - k2.getPriority());
+		int comp = (int) dcomp;
+		if (comp == 0) {
+			comp = dcomp > 0 ? 1 : -1;
+		}
+		return comp;
 	}
 
 	public static ITaskRunnable nextTask(int i) {

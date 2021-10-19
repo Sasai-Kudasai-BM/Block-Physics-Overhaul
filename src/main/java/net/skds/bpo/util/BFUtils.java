@@ -15,17 +15,25 @@ import net.minecraft.tags.ITag;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraft.util.math.shapes.VoxelShapes;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.World;
+import net.minecraft.world.chunk.AbstractChunkProvider;
+import net.minecraft.world.chunk.Chunk;
+import net.minecraft.world.chunk.ChunkSection;
+import net.minecraft.world.chunk.IChunk;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.skds.bpo.BPOConfig;
 import net.skds.bpo.blockphysics.WWS;
+import net.skds.bpo.util.data.ChunkData;
 import net.skds.bpo.util.pars.BlockPhysicsPars;
 import net.skds.bpo.util.pars.ConversionPars;
 import net.skds.core.api.IBlockExtended;
+import net.skds.core.api.IServerChunkProvider;
 import net.skds.core.util.CustomBlockPars;
+import net.skds.core.util.data.ChunkSectionAdditionalData;
 
 public class BFUtils {
 
@@ -44,7 +52,8 @@ public class BFUtils {
 			return shape;
 		}
 		Vector3d vpos = shape.getBoundingBox().getCenter();
-		VoxelShape shape2 = VoxelShapes.fullCube().withOffset(Math.floor(vpos.x), Math.floor(vpos.y), Math.floor(vpos.z));
+		VoxelShape shape2 = VoxelShapes.fullCube().withOffset(Math.floor(vpos.x), Math.floor(vpos.y),
+				Math.floor(vpos.z));
 		//System.out.println(shape2.getBoundingBox().getCenter());
 		return shape2;
 	}
@@ -61,6 +70,22 @@ public class BFUtils {
 			float res = b.getExplosionResistance();
 			par = new BlockPhysicsPars(b, empty, res);
 			cbp.put(par);
+		} else if (par.natural != null && !world.isRemote) {
+			long lpos = ChunkPos.asLong(pos.getX() >> 4, pos.getZ() >> 4);
+			AbstractChunkProvider prov = world.getChunkProvider();
+			IChunk iChunk = ((IServerChunkProvider) prov).getCustomChunk(lpos);
+			if (iChunk instanceof Chunk) {
+				Chunk chunk = (Chunk) iChunk;
+				if (chunk != null && !chunk.isEmpty()) {
+					ChunkSection section = chunk.getSections()[pos.getY() >> 4];
+					if (section != null && !section.isEmpty()) {
+						ChunkData data = ChunkSectionAdditionalData.getTypedFromSection(section, ChunkData.class);
+						if (data.isNatural(pos.getX(), pos.getX(), pos.getZ())) {
+							return par.natural;
+						}
+					}
+				}
+			}
 		} else if (par.dimOver != null) {
 			String worldName = world.getDimensionKey().getLocation().toString();
 			BlockPhysicsPars worldPar = par.dimOver.get(worldName);
@@ -83,7 +108,7 @@ public class BFUtils {
 		}
 		return par;
 	}
-	
+
 	public static Set<BlockPos> getBlockPoses(AxisAlignedBB aabb) {
 		int x0 = (int) Math.floor(aabb.minX + 1E-4);
 		int y0 = (int) Math.floor(aabb.minY + 1E-4);

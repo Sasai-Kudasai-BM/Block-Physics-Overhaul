@@ -28,6 +28,7 @@ public class BlockPhysicsPars {
 	public final Set<Block> attachIgnore, selfList;
 	public final String name;
 	public final Map<String, BlockPhysicsPars> dimOver;
+	public final BlockPhysicsPars natural;
 
 	private BlockPhysicsPars() {
 		this.mass = 0;
@@ -47,6 +48,7 @@ public class BlockPhysicsPars {
 		this.name = "DEF AIR";
 		this.dimOver = null;
 		this.diagonal = false;
+		this.natural = null;
 		this.slideChance = 0;
 
 	}
@@ -54,7 +56,7 @@ public class BlockPhysicsPars {
 	public BlockPhysicsPars(float mass, float strength, float bounce, int radial, int linear, int arc, boolean slide,
 			boolean hanging, boolean attach, boolean falling, boolean ceiling, boolean fragile, Set<Block> attachIgnore,
 			Set<Block> selfList, String name, Map<String, BlockPhysicsPars> dimOver, boolean diagonal,
-			float slideChance) {
+			float slideChance, BlockPhysicsPars natural) {
 		this.mass = mass;
 		this.strength = strength;
 		this.bounce = bounce;
@@ -73,6 +75,7 @@ public class BlockPhysicsPars {
 		this.dimOver = dimOver;
 		this.diagonal = diagonal;
 		this.slideChance = slideChance;
+		this.natural = natural;
 
 	}
 
@@ -82,7 +85,7 @@ public class BlockPhysicsPars {
 		this.slideChance = 0.5F;
 		this.name = "Undefined";
 		this.dimOver = null;
-
+		this.natural = null;
 
 		float str = resistance;
 		boolean bool = str > 3_000_000;
@@ -119,7 +122,7 @@ public class BlockPhysicsPars {
 		// }
 	}
 
-	public static BlockPhysicsPars createFromJson(JsonElement json, String name, boolean tryDimension,
+	public static BlockPhysicsPars createFromJson(JsonElement json, String name, boolean tryRecursion,
 			@Nullable Set<Block> existingList) {
 		if (json == null) {
 			LOGGER.error("Invalid blockphysics properties: \"" + name + "\"");
@@ -154,6 +157,7 @@ public class BlockPhysicsPars {
 		JsonElement JattachIgnore = jsonObject.get("attachIgnore");
 
 		JsonElement JdimOver = jsonObject.get("dimensionOverrides");
+		JsonElement Jnatural = jsonObject.get("natural");
 
 		Map<String, BlockPhysicsPars> dimOver = null;
 
@@ -180,13 +184,12 @@ public class BlockPhysicsPars {
 
 			Set<Block> attachIgnore = new HashSet<>();
 
-
 			attachIgnore.addAll(BFUtils.getBlocksFromJA(JattachIgnore.getAsJsonArray()));
 			if (existingList == null) {
 				blocks.addAll(BFUtils.getBlocksFromJA(listsE.getAsJsonArray()));
 			}
 
-			if (JdimOver != null && tryDimension) {
+			if (JdimOver != null && tryRecursion) {
 				dimOver = new HashMap<>();
 
 				for (Entry<String, JsonElement> e : JdimOver.getAsJsonObject().entrySet()) {
@@ -197,15 +200,20 @@ public class BlockPhysicsPars {
 					// System.out.println(par);
 				}
 
-				
 				dimOver = ImmutableMap.copyOf(dimOver);
+			}
+
+			BlockPhysicsPars natural = null;
+			if (Jnatural != null && tryRecursion) {
+				natural = createFromJson(Jnatural, name + " natural", false, blocks);
 			}
 
 			attachIgnore = ImmutableSet.copyOf(attachIgnore);
 			blocks = ImmutableSet.copyOf(blocks);
 
 			BlockPhysicsPars pars = new BlockPhysicsPars(mass, strength, bounce, radial, linear, arc, slide, hanging,
-					attach, falling, ceiling, fragile, attachIgnore, blocks, name, dimOver, diagonal, slideChance);
+					attach, falling, ceiling, fragile, attachIgnore, blocks, name, dimOver, diagonal, slideChance,
+					natural);
 
 			return pars;
 

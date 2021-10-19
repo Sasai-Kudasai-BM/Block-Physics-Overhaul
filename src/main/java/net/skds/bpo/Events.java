@@ -27,12 +27,10 @@ public class Events {
 
 	public static MinecraftServer serverInstance = null;
 
-	// @SubscribeEvent
 	public void onPacketReg(PacketRegistryEvent e) {
 		Packets.reg(e);
 	}
 
-	// @SubscribeEvent
 	public void onConfigL(ModConfig.Loading e) {
 		BPOConfig.cash();
 	}
@@ -62,28 +60,15 @@ public class Events {
 	public void onTagsUpdated(TagsUpdatedEvent.CustomTagTypes e) {
 		JCRUPhys.loadFromConfig();
 		JCRUPhys.loadFromData();
-
 		JCRUConv.loadFromConfig();
 		JCRUConv.loadFromData();
 	}
-
-	/*
-	 * @SubscribeEvent public void onPlayerConnected(PlayerEvent.PlayerLoggedInEvent
-	 * e) { if (!e.getPlayer().world.isRemote) { //PacketHandler.send(e.getPlayer(),
-	 * new JsonConfigPacket(ParsApplier.CASHED_JSON)); } }
-	 */
 
 	@SubscribeEvent
 	public void onSyncMTHook(SyncTasksHookEvent e) {
 		ThreadProvider.doSyncFork(WWS::nextTask);
 	}
 
-	@SubscribeEvent
-	public void onExplode(ExplosionEvent.Detonate e) {
-		// if (BFManager.onExplosion(e.getExplosion(), e.getWorld())) {
-		// e.setCanceled(true);
-		// }
-	}
 
 	@SubscribeEvent
 	public void onServerStartTick(ServerTickEvent e) {
@@ -93,14 +78,15 @@ public class Events {
 	}
 
 	@SubscribeEvent
+	public void onExplode(ExplosionEvent.Start e) {
+	}
+
+	@SubscribeEvent
 	public void onExplode0(ExplosionEvent.Detonate e) {
 		World world = e.getWorld();
 		Explosion ex = e.getExplosion();
-		//BPOConfig.cash();
-		//System.out.println(BPOConfig.MAIN.explosionMultiplier);
 		ExplosionPlug ep = new ExplosionPlug(world, ex.getPosition(),
 				((ExplosionMixin) ex).getPower() * (float) BPOConfig.MAIN.explosionMultiplier, ex);
 		ep.explode();
-		//e.setCanceled(true);
 	}
 }

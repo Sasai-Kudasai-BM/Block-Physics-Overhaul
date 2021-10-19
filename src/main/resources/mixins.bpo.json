@@ -7,10 +7,10 @@
   "compatibilityLevel": "JAVA_8",
   "mixins": [
     
-    "block.AbstractBlockStateMixin",
     "block.FallingBlockMixin",
     "block.BlockMixin",
     
+    "WorldMixin",
     "ExplosionMixin",
     "ServerWorldMixin"
 
