@@ -52,7 +52,9 @@ public class ChunkData implements IChunkSectionData {
 		int n = getIndex(x, y, z);
 		long l = naturalData[n / 64];
 		long a = 1L << (n & 63);
-		return (l & a) != 0;
+		boolean b = (l & a) != 0;		
+		//System.out.println(y + " " + b);	
+		return b;
 	}
 
 	public void setNatural(int x, int y, int z, boolean value) {
@@ -61,7 +63,7 @@ public class ChunkData implements IChunkSectionData {
 		if (value) {
 			naturalData[n / 64] |= a;
 		} else {
-			naturalData[n / 64] &= ~a;			
+			naturalData[n / 64] &= ~a;		
 		}
 	}
 

@@ -14,7 +14,6 @@ import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.Explosion;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
-import net.minecraft.world.chunk.ChunkSection;
 import net.minecraft.world.server.ServerWorld;
 import net.skds.bpo.BPOConfig;
 import net.skds.bpo.blockphysics.BFTask.Type;
@@ -77,10 +76,11 @@ public class BFManager {
 	public static void addOnAddedTask(ServerWorld w, BlockPos pos, BlockState state, BlockState oldState, int flags, Chunk chunk) {
 
 		boolean flag16 = (flags & 16) != 0;
+
 		
-		ChunkSection section = chunk.getSections()[pos.getY() >> 4];
-		if (section != null) {
-			ChunkData data = ChunkSectionAdditionalData.getTypedFromSection(section, ChunkData.class);
+		ChunkData data = ChunkSectionAdditionalData.getTyped(chunk, pos.getY() >> 4, ChunkData.class);
+		if (data != null) {
+			//System.out.println(flag16);
 			data.setNatural(pos.getX(), pos.getY(), pos.getZ(), flag16);
 		}
 

@@ -22,7 +22,6 @@ import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.AbstractChunkProvider;
 import net.minecraft.world.chunk.Chunk;
-import net.minecraft.world.chunk.ChunkSection;
 import net.minecraft.world.chunk.IChunk;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.skds.bpo.BPOConfig;
@@ -77,10 +76,9 @@ public class BFUtils {
 			if (iChunk instanceof Chunk) {
 				Chunk chunk = (Chunk) iChunk;
 				if (chunk != null && !chunk.isEmpty()) {
-					ChunkSection section = chunk.getSections()[pos.getY() >> 4];
-					if (section != null && !section.isEmpty()) {
-						ChunkData data = ChunkSectionAdditionalData.getTypedFromSection(section, ChunkData.class);
-						if (data.isNatural(pos.getX(), pos.getX(), pos.getZ())) {
+					ChunkData data = ChunkSectionAdditionalData.getTyped(chunk, pos.getY() >> 4, ChunkData.class);
+					if (data != null) {
+						if (data.isNatural(pos.getX(), pos.getY(), pos.getZ())) {
 							return par.natural;
 						}
 					}

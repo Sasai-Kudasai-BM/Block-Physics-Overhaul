@@ -22,11 +22,9 @@ import net.skds.bpo.BPOConfig;
 import net.skds.bpo.blockphysics.BFTask.Type;
 import net.skds.bpo.entity.AdvancedFallingBlockEntity;
 import net.skds.bpo.util.BFUtils;
-import net.skds.bpo.util.data.ChunkData;
 import net.skds.bpo.util.pars.BlockPhysicsPars;
 import net.skds.bpo.util.pars.ConversionPars;
 import net.skds.core.util.blockupdate.BasicExecutor;
-import net.skds.core.util.data.ChunkSectionAdditionalData;
 
 public class BFExecutor extends BasicExecutor {
 
@@ -321,14 +319,6 @@ public class BFExecutor extends BasicExecutor {
 
 	@SuppressWarnings("unused")
 	private boolean tryHang(BlockPos pos0, BlockState state0, BlockPhysicsPars param0, float force) {
-		ChunkSectionAdditionalData csad = reader.getCSAD(pos, false);
-		if (csad == null) {
-			return false;
-		}
-		ChunkData csd = csad.getData(ChunkData.class);
-		if (csd == null) {
-
-		}
 		return false;
 	}
 
