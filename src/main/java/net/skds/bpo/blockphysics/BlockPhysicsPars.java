@@ -1,4 +1,4 @@
-package net.skds.bpo.util.pars;
+package net.skds.bpo.blockphysics;
 
 import static net.skds.bpo.BPO.LOGGER;
 
@@ -17,6 +17,7 @@ import com.google.gson.JsonObject;
 
 import net.minecraft.block.Block;
 import net.skds.bpo.util.BFUtils;
+import net.skds.bpo.util.BFUtils.ParsGroup;
 
 public class BlockPhysicsPars {
 
@@ -122,6 +123,16 @@ public class BlockPhysicsPars {
 		// }
 	}
 
+	public boolean canBeDiagonal() {
+		if (diagonal) {
+			return true;
+		}
+		if (natural != null) {
+			return natural.diagonal;
+		}
+		return false;
+	}
+
 	public static BlockPhysicsPars createFromJson(JsonElement json, String name, boolean tryRecursion,
 			@Nullable Set<Block> existingList) {
 		if (json == null) {
@@ -223,13 +234,13 @@ public class BlockPhysicsPars {
 		}
 	}
 
-	public static JCRUPhys.ParsGroup<BlockPhysicsPars> readFromJson(JsonElement json, String name) {
+	public static ParsGroup<BlockPhysicsPars> readFromJson(JsonElement json, String name) {
 		if (json == null || !json.isJsonObject()) {
 			LOGGER.error("Invalid blockphysics properties: \"" + name + "\"");
 			return null;
 		}
 		BlockPhysicsPars pars = createFromJson(json, name, true, null);
-		return new JCRUPhys.ParsGroup<BlockPhysicsPars>(pars, pars.selfList);
+		return new ParsGroup<BlockPhysicsPars>(pars, pars.selfList);
 	}
 
 	@Override

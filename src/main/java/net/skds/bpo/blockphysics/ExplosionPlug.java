@@ -9,6 +9,7 @@ import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.Explosion;
 import net.minecraft.world.World;
 import net.skds.bpo.entity.AdvancedFallingBlockEntity;
+import net.skds.bpo.util.BFUtils;
 public class ExplosionPlug {
 
 	public final float power;
@@ -29,14 +30,18 @@ public class ExplosionPlug {
 			if (bs.getMaterial() == Material.AIR || bs.getBlock() instanceof FlowingFluidBlock) {
 				continue;
 			}
+			ConversionPars par = BFUtils.getConvParam(bs.getBlock());
+			if (par != ConversionPars.EMPTY) {
+				bs = par.expState;
+			}
 			world.setBlockState(bp, Blocks.AIR.getDefaultState(), 0);
 			AdvancedFallingBlockEntity e = new AdvancedFallingBlockEntity(world, bp.getX() + 0.5, bp.getY(), bp.getZ() + 0.5, bs);
-			e.fallTime = -5;
+			//e.fallTime = -5;
 			Vector3d delta = e.getPositionVec().subtract(pos);
-			double m = 2;
-			Vector3d motion = delta.normalize().scale((power / 4) * m / delta.lengthSquared());
-			if (motion.length() > m) {
-				motion = motion.normalize().scale(m / 4);
+			float m = 5;
+			Vector3d motion = delta.normalize().scale((power / 4f) * m * 1f / (/*delta.lengthSquared() */ Math.sqrt(e.pars.mass)));
+			if (motion.length() > m ) {
+				motion = motion.normalize().scale(m);
 			}
 			e.setMotion(motion);
 			world.addEntity(e);

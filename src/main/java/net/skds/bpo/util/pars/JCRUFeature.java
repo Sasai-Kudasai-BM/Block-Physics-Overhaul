@@ -15,24 +15,32 @@ import net.minecraft.resources.IResource;
 import net.minecraft.resources.IResourceManager;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.skds.bpo.BPO;
-import net.skds.bpo.blockphysics.BlockPhysicsPars;
+import net.skds.bpo.blockphysics.FeatureContainer;
+import net.skds.bpo.blockphysics.features.IFeature;
 import net.skds.bpo.util.BFUtils.ParsGroup;
 import net.skds.core.api.IBlockExtended;
 import net.skds.core.api.IJsonConfigUnit;
 import net.skds.core.util.CustomBlockPars;
 import net.skds.core.util.configs.UniversalJsonReader;
 
-public class JCRUPhys implements IJsonConfigUnit {
+public class JCRUFeature implements IJsonConfigUnit {
 
 	// JsonConfigReadingUnit
-	public static final JCRUPhys INSTANCE = new JCRUPhys();
+	public static final JCRUFeature INSTANCE = new JCRUFeature();
 
 	private boolean clear = true;
 
-	public static void applyBlockPhysicsPars(ParsGroup<BlockPhysicsPars> BG) {
+	public static void applyIFeature(ParsGroup<IFeature> BG) {
 		for (Block b : BG.blocks) {
 			CustomBlockPars pars = ((IBlockExtended) b).getCustomBlockPars();
-			pars.put(BG.param);
+
+			FeatureContainer container = pars.get(FeatureContainer.class);
+
+			if (container == null) {
+				container = new FeatureContainer();
+				pars.put(container);
+			}
+			container.put(BG.param);
 		}
 	}
 
@@ -43,7 +51,7 @@ public class JCRUPhys implements IJsonConfigUnit {
 
 	@Override
 	public String getName() {
-		return "blockphysics";
+		return "features";
 	}
 
 	@Override
@@ -59,13 +67,13 @@ public class JCRUPhys implements IJsonConfigUnit {
 	@Override
 	public boolean apply(JsonObject jo) {
 
-		List<ParsGroup<BlockPhysicsPars>> list = new ArrayList<>();
+		List<ParsGroup<IFeature>> list = new ArrayList<>();
 
 		for (Map.Entry<String, JsonElement> e : jo.entrySet()) {
 			String key = e.getKey();
-			ParsGroup<BlockPhysicsPars> group = null;
+			ParsGroup<IFeature> group = null;
 			try {
-				group = BlockPhysicsPars.readFromJson(e.getValue(), key);
+				group = FeatureContainer.readFromJson(e.getValue(), key);
 			} catch (Exception ex) {
 			}
 			if (group != null) {
@@ -78,14 +86,14 @@ public class JCRUPhys implements IJsonConfigUnit {
 
 		long t0 = System.currentTimeMillis();
 		if (clear) {
-			LOGGER.info("Cleaning old blockphysics config data...");
+			LOGGER.info("Cleaning old conversion config data...");
 			ForgeRegistries.BLOCKS.getValues().forEach(block -> {
-				((IBlockExtended) block).getCustomBlockPars().clear(BlockPhysicsPars.class);
+				((IBlockExtended) block).getCustomBlockPars().clear(FeatureContainer.class);
 			});
 		}
-		LOGGER.info("Reading blockphysics configs...");
-		for (ParsGroup<BlockPhysicsPars> pg : list) {			
-			applyBlockPhysicsPars(pg);
+		LOGGER.info("Reading conversion configs...");
+		for (ParsGroup<IFeature> pg : list) {			
+			applyIFeature(pg);
 			//System.out.println(pg.param.name);
 		}
 		LOGGER.info("Configs reloaded in " + (System.currentTimeMillis() - t0) + "ms");
@@ -105,7 +113,7 @@ public class JCRUPhys implements IJsonConfigUnit {
 		}
 		IResourceManager resourceManager = UniversalJsonReader.DATA_PACK_RREGISTRIES.getResourceManager();
 		resourceManager.getAllResourceLocations("bpodata", s -> {
-			return s.endsWith("blockphysics.json");
+			return s.endsWith("features.json");
 		}).forEach(rl -> {
 			try {
 				IResource resource = resourceManager.getResource(rl);

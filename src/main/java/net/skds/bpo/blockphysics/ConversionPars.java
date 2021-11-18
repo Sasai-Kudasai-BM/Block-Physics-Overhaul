@@ -1,4 +1,4 @@
-package net.skds.bpo.util.pars;
+package net.skds.bpo.blockphysics;
 
 import static net.skds.bpo.BPO.LOGGER;
 
@@ -14,6 +14,7 @@ import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.JsonToNBT;
 import net.minecraft.nbt.NBTUtil;
 import net.skds.bpo.util.BFUtils;
+import net.skds.bpo.util.BFUtils.ParsGroup;
 
 public class ConversionPars {
 	public static final ConversionPars EMPTY = new ConversionPars();
@@ -112,12 +113,12 @@ public class ConversionPars {
 		}
 	}
 
-	public static JCRUConv.ParsGroup<ConversionPars> readFromJson(JsonElement json, String name) {
+	public static ParsGroup<ConversionPars> readFromJson(JsonElement json, String name) {
 		if (json == null || !json.isJsonObject()) {
 			LOGGER.error("Invalid conversion properties: \"" + name + "\"");
 			return null;
 		}
 		ConversionPars pars = createFromJson(json, name);
-		return new JCRUConv.ParsGroup<ConversionPars>(pars, pars.selfList);
+		return new ParsGroup<ConversionPars>(pars, pars.selfList);
 	}
 }

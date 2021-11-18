@@ -9,6 +9,7 @@ import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.FlowingFluidBlock;
 import net.minecraft.block.material.Material;
+import net.minecraft.state.properties.BlockStateProperties;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Direction;
@@ -20,10 +21,9 @@ import net.minecraft.world.server.ChunkHolder;
 import net.minecraft.world.server.ServerWorld;
 import net.skds.bpo.BPOConfig;
 import net.skds.bpo.blockphysics.BFTask.Type;
+import net.skds.bpo.blockphysics.features.IFeature;
 import net.skds.bpo.entity.AdvancedFallingBlockEntity;
 import net.skds.bpo.util.BFUtils;
-import net.skds.bpo.util.pars.BlockPhysicsPars;
-import net.skds.bpo.util.pars.ConversionPars;
 import net.skds.core.util.blockupdate.BasicExecutor;
 
 public class BFExecutor extends BasicExecutor {
@@ -39,6 +39,7 @@ public class BFExecutor extends BasicExecutor {
 	private final BFTask task;
 	// private final BFTask.Type type;
 	private final BlockPhysicsPars param;
+	private final FeatureContainer feature;
 	private final WWS castOwner;
 
 	private boolean ocuFail = false;
@@ -50,6 +51,7 @@ public class BFExecutor extends BasicExecutor {
 		this.state = getBlockState(pos);
 		this.block = this.state.getBlock();
 		this.param = getParam(block, w, pos);
+		this.feature = BFUtils.getFeatures(block);
 		// this.type = task.type;
 		this.castOwner = (WWS) owner;
 	}
@@ -229,6 +231,17 @@ public class BFExecutor extends BasicExecutor {
 		BlockPos posd = pos.down();
 		BlockState stated = getBlockState(posd);
 
+		if (feature != null && !feature.isEmpty() && feature.contains(FeatureContainer.Simple.LEAVES)) {
+
+			if (canFall(stated)) {
+				if (!checkLeaves()) {
+					fall();
+					return true;
+				}
+			}
+			return false;
+		}
+
 		if (task.type == Type.DOWNRAY) {
 			// System.out.println("x");
 			if (!checkDownray(pos, state, param)) {
@@ -252,6 +265,10 @@ public class BFExecutor extends BasicExecutor {
 			}
 		}
 		return false;
+	}
+
+	private boolean checkLeaves() {
+		return state.get(BlockStateProperties.DISTANCE_1_7) < 7;
 	}
 
 	private BlockState fallConvert(BlockState state) {
@@ -380,6 +397,8 @@ public class BFExecutor extends BasicExecutor {
 			}
 		}
 
+		//System.out.println("x");
+
 		return false;
 	}
 
@@ -501,7 +520,7 @@ public class BFExecutor extends BasicExecutor {
 						par1 = par2;
 						el = false;
 					}
-				} 
+				}
 				if (el) {
 					if (upped) {
 						//System.out.println("a " + pos2);
@@ -547,7 +566,8 @@ public class BFExecutor extends BasicExecutor {
 			BlockState state3 = getBlockState(pos3);
 			BlockPhysicsPars par3 = getParam(state3);
 			if (canSupport(state1, state3, pos1, pos3, par1, par3, force, mode)) {
-				if (proofCeli(pos2, state2, par2, dir, mode, force) && proofCeli(pos3, state3, par3, dir.getOpposite(), mode, force)) {
+				if (proofCeli(pos2, state2, par2, dir, mode, force)
+						&& proofCeli(pos3, state3, par3, dir.getOpposite(), mode, force)) {
 					return true;
 				}
 			}
@@ -561,7 +581,8 @@ public class BFExecutor extends BasicExecutor {
 			BlockState state3 = getBlockState(pos3);
 			BlockPhysicsPars par3 = getParam(state3);
 			if (canSupport(state1, state3, pos1, pos3, par1, par3, force, mode)) {
-				if (proofCeli(pos2, state2, par2, dir, mode, force) && proofCeli(pos3, state3, par3, dir.getOpposite(), mode, force)) {
+				if (proofCeli(pos2, state2, par2, dir, mode, force)
+						&& proofCeli(pos3, state3, par3, dir.getOpposite(), mode, force)) {
 					return true;
 				}
 			}
@@ -570,7 +591,8 @@ public class BFExecutor extends BasicExecutor {
 		return false;
 	}
 
-	private boolean proofCeli(BlockPos pos0, BlockState state0, BlockPhysicsPars param0, Direction dir, boolean mode, float force) {
+	private boolean proofCeli(BlockPos pos0, BlockState state0, BlockPhysicsPars param0, Direction dir, boolean mode,
+			float force) {
 		int maxDist = 32;
 		int dist = 0;
 		BlockPos pos1 = pos0;
@@ -724,13 +746,35 @@ public class BFExecutor extends BasicExecutor {
 		return !support;
 	}
 
+	private boolean checkLogs(BlockState state1, BlockState state2, Direction dir) {
+		FeatureContainer fc1 = BFUtils.getFeatures(state1.getBlock());
+		FeatureContainer fc2 = BFUtils.getFeatures(state2.getBlock());
+		if (checkLog(fc1, state1, dir) || checkLog(fc2, state2, dir)) {
+			return true;
+		}
+		return false;
+	}
+
+	private boolean checkLog(FeatureContainer fc, BlockState state1, Direction dir) {
+		boolean bl = false;
+		if (fc != null && !fc.isEmpty()) {
+			if (fc.contains(FeatureContainer.Simple.LOGS)) {
+				bl = !state1.get(BlockStateProperties.AXIS).equals(dir.getAxis());
+			}
+		}
+		return bl;
+	}
+
 	private boolean canSupport(BlockState state1, BlockState state2, BlockPos pos1, BlockPos pos2,
 			BlockPhysicsPars par1, BlockPhysicsPars par2, float force, boolean... flags) {
 		ssa = false;
-		if (isAir(state2) || state2.getBlock() instanceof FlowingFluidBlock) {
+		if (isAir(state2) || state2.getBlock() instanceof FlowingFluidBlock ) {
 			return false;
 		}
 		Direction dir = dirFromVec(pos1, pos2);
+		if (checkLogs(state1, state2, dir)) {
+			return false;
+		}
 		boolean arc = false;
 		if (flags.length > 0) {
 			arc = flags[0];

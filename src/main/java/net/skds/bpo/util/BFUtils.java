@@ -25,10 +25,11 @@ import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.IChunk;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.skds.bpo.BPOConfig;
+import net.skds.bpo.blockphysics.BlockPhysicsPars;
+import net.skds.bpo.blockphysics.ConversionPars;
+import net.skds.bpo.blockphysics.FeatureContainer;
 import net.skds.bpo.blockphysics.WWS;
 import net.skds.bpo.util.data.ChunkData;
-import net.skds.bpo.util.pars.BlockPhysicsPars;
-import net.skds.bpo.util.pars.ConversionPars;
 import net.skds.core.api.IBlockExtended;
 import net.skds.core.api.IServerChunkProvider;
 import net.skds.core.util.CustomBlockPars;
@@ -57,6 +58,12 @@ public class BFUtils {
 		return shape2;
 	}
 
+	public static FeatureContainer getFeatures(Block b) {
+		CustomBlockPars cbp = ((IBlockExtended) b).getCustomBlockPars();
+		FeatureContainer fe = cbp.get(FeatureContainer.class);
+		return fe;
+	}
+
 	public static BlockPhysicsPars getParam(Block b, BlockPos pos, World world) {
 		if (b instanceof AirBlock) {
 			return BlockPhysicsPars.DEFAULT_AIR;
@@ -79,6 +86,7 @@ public class BFUtils {
 					ChunkData data = ChunkSectionAdditionalData.getTyped(chunk, pos.getY() >> 4, ChunkData.class);
 					if (data != null) {
 						if (data.isNatural(pos.getX(), pos.getY(), pos.getZ())) {
+							//System.out.println("x");
 							return par.natural;
 						}
 					}
@@ -176,5 +184,15 @@ public class BFUtils {
 			}
 		}
 		return blocks;
+	}
+
+	public static class ParsGroup<A> {
+		public final Set<Block> blocks;
+		public final A param;
+
+		public ParsGroup(A p, Set<Block> blockList) {
+			param = p;
+			blocks = blockList;
+		}
 	}
 }

@@ -58,8 +58,8 @@ public class WWS implements IWWS {
 		if (i > 15 || E_COUNT > BPOConfig.MAIN.maxFallingBlocks) {
 			return null;
 		}
-		if (MTHooks.COUNTS > 0 || Events.getRemainingTickTimeMilis() > MTHooks.TIME) {
-			MTHooks.COUNTS--;
+		if (MTHooks.COUNTS.get() > 0 || Events.getRemainingTickTimeMilis() > MTHooks.TIME) {
+			MTHooks.COUNTS.decrementAndGet();
 			BFTask task;
 			while ((task = TASKS.pollFirst()) != null) {
 				// System.out.println(tested);
@@ -93,12 +93,6 @@ public class WWS implements IWWS {
 	}
 
 	public static void afterEntityTick() {
-		//AdvancedFallingBlockEntity e;
-		//while ((e = AFBETasks.poll()) != null) {
-		//	e.tick2();
-		//}
-		//if (true)
-		//	return;
 		ThreadProvider.doSyncFork(WWS::nextETask);
 		try {
 			ThreadProvider.waitForStop();
@@ -140,31 +134,20 @@ public class WWS implements IWWS {
 	}
 
 	public static void tickServerIn() {
-		//System.out.println(E_COUNT);
 		E_COUNT = 0;
 		T_COUNT = TASKS.size();
-		//System.out.println(T_COUNT);
 	}
 
 	// =========== Override ==========
 
 	@Override
 	public void tickIn() {
-		//BPOConfig.cash();
 		collisionMap.tick();
 		tickDT();
-		//for (ServerPlayerEntity pl : world.getPlayers()) {
-		//	SEntityVelocityPacket packet = new SEntityVelocityPacket(pl.getEntityId(), pl.getLookVec().scale(1.5));
-		//	pl.connection.sendPacket(packet);
-		//}
 	}
 
 	@Override
 	public void tickOut() {
-		// System.out.println(TASKS.size());
-		//System.out.println(AFBETasks.size());
-		// System.out.println(delayedTasks.size());
-		// System.out.println(collisionMap.chunks.size());
 	}
 
 	@Override
@@ -176,5 +159,13 @@ public class WWS implements IWWS {
 	@Override
 	public WWSGlobal getG() {
 		return glob;
+	}
+
+	@Override
+	public void tickPostMTH() {
+	}
+
+	@Override
+	public void tickPreMTH() {
 	}
 }

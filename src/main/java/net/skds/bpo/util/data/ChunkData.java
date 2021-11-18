@@ -1,7 +1,5 @@
 package net.skds.bpo.util.data;
 
-import java.util.Arrays;
-
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.LongArrayNBT;
 import net.skds.core.api.IChunkSectionData;
@@ -10,16 +8,13 @@ import net.skds.core.util.data.ChunkSectionAdditionalData;
 
 public class ChunkData implements IChunkSectionData {
 
-	private static final long[] filled;
-
 	public final ChunkSectionAdditionalData sectionData;
 	private final Side side;
-	private long[] naturalData;
+	private long[] naturalData = new long[64];
 
 	public ChunkData(ChunkSectionAdditionalData sectionData, Side side) {
 		this.side = side;
 		this.sectionData = sectionData;
-		naturalData = filled.clone();
 	}
 
 	@Override
@@ -52,7 +47,7 @@ public class ChunkData implements IChunkSectionData {
 		int n = getIndex(x, y, z);
 		long l = naturalData[n / 64];
 		long a = 1L << (n & 63);
-		boolean b = (l & a) != 0;		
+		boolean b = (l & a) == 0;		
 		//System.out.println(y + " " + b);	
 		return b;
 	}
@@ -61,15 +56,10 @@ public class ChunkData implements IChunkSectionData {
 		int n = getIndex(x, y, z);
 		long a = 1L << (n & 63);
 		if (value) {
-			naturalData[n / 64] |= a;
+			naturalData[n / 64] &= ~a;
 		} else {
-			naturalData[n / 64] &= ~a;		
+			naturalData[n / 64] |= a;		
 		}
-	}
-
-	static {
-		filled = new long[64];		
-		Arrays.fill(filled, -1);
 	}
 
 	@Override

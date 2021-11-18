@@ -20,7 +20,6 @@ import net.skds.bpo.blockphysics.BFTask.Type;
 import net.skds.bpo.entity.AdvancedFallingBlockEntity;
 import net.skds.bpo.util.BFUtils;
 import net.skds.bpo.util.data.ChunkData;
-import net.skds.bpo.util.pars.BlockPhysicsPars;
 import net.skds.core.api.IWorldExtended;
 import net.skds.core.util.data.ChunkSectionAdditionalData;
 
@@ -97,7 +96,7 @@ public class BFManager {
 
 		if (state.getMaterial() != Material.AIR) {
 			addTask(w, pos, state, Type.PLACED);
-		} else if (BFUtils.getParam(oldState.getBlock(), pos, w).diagonal) {
+		} else if (BFUtils.getParam(oldState.getBlock(), pos, w).canBeDiagonal()) {
 
 			for (Direction dir : Direction.Plane.HORIZONTAL) {
 				BlockPos pos1 = pos.offset(dir);
@@ -108,6 +107,10 @@ public class BFManager {
 				BlockPos pos2 = pos1u.offset(dir.rotateY());
 				BlockState state2 = w.getBlockState(pos2);
 				addTask(w, pos2, state2, Type.NEIGHBOR);
+
+				BlockPos pos3 = pos1.offset(dir.rotateY());
+				BlockState state3 = w.getBlockState(pos3);
+				addTask(w, pos3, state3, Type.NEIGHBOR);
 
 			}
 		}

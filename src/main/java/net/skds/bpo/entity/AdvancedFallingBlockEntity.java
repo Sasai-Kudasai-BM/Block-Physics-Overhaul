@@ -43,11 +43,11 @@ import net.minecraftforge.fml.network.NetworkHooks;
 import net.skds.bpo.BPO;
 import net.skds.bpo.BPOConfig;
 import net.skds.bpo.blockphysics.BFExecutor;
+import net.skds.bpo.blockphysics.BlockPhysicsPars;
+import net.skds.bpo.blockphysics.ConversionPars;
 import net.skds.bpo.blockphysics.WWS;
 import net.skds.bpo.registry.Entities;
 import net.skds.bpo.util.BFUtils;
-import net.skds.bpo.util.pars.BlockPhysicsPars;
-import net.skds.bpo.util.pars.ConversionPars;
 import net.skds.core.api.IWorldExtended;
 import net.skds.core.util.other.Pair;
 
@@ -441,21 +441,13 @@ public class AdvancedFallingBlockEntity extends Entity implements IEntityAdditio
 
 		Vector3d maxMove = getAllowedMovementV2(motion);
 
+		boolean nZeroM = true;
+
 		if (!maxMove.equals(motion)) {
 			Vector3d motion2 = onCollision(motion, maxMove);
 			if (pars.bounce > 0 || fallTime < 0 || motion2.lengthSquared() > 1E-8) {
 				motion = getAllowedMovementV2(motion2);
-				if (!motion.equals(motion2)) {
-					if (motion.x != motion2.x) {
-						motion = motion2.mul(0, 1, 1);
-					}
-					if (motion.y != motion2.y) {
-						motion = motion2.mul(1, 0, 1);
-					}
-					if (motion.z != motion2.z) {
-						motion = motion2.mul(1, 1, 0);
-					}
-				}
+				nZeroM = motion.equals(motion2);
 			} else {
 				motion = motion2;
 			}
@@ -474,8 +466,14 @@ public class AdvancedFallingBlockEntity extends Entity implements IEntityAdditio
 		// if (!world.isRemote)
 		// wws.collisionMap.addBox(this, getBoundingBox().expand(motion));
 
-		this.setPosition(getPosX() + motion.x + offset.x, getPosY() + motion.y + offset.y,
-				getPosZ() + motion.z + offset.z);
+		if (nZeroM) {
+			this.setPosition(getPosX() + motion.x + offset.x, getPosY() + motion.y + offset.y,
+					getPosZ() + motion.z + offset.z);
+		} else {
+			this.setPosition(getPosX() + maxMove.x + offset.x, getPosY() + maxMove.y + offset.y,
+					getPosZ() + maxMove.z + offset.z);
+
+		}
 	}
 
 	private void pushOut() {

@@ -73,6 +73,22 @@
 		"hanging": false,
 		"attach": false,
 		"attachIgnore": [],
+		"natural": {
+			"mass": 2000.0,
+			"strength": 10.0,
+			"bounce": 0.0,
+			"slideChance": 0.5,
+			"radial": 0,
+			"linear": 0,
+			"arc": 1,
+			"falling": true,
+			"ceiling": false,
+			"fragile": false,
+			"slide": false,
+			"hanging": false,
+			"attach": false,
+			"attachIgnore": []
+		},
 		"blocks": [
 			"#forge:dirt",
 			"#forge:sand",
@@ -94,6 +110,22 @@
 		"hanging": false,
 		"attach": false,
 		"attachIgnore": [],
+		"natural": {
+			"mass": 2000.0,
+			"strength": 10.0,
+			"bounce": 0.0,
+			"slideChance": 0.5,
+			"radial": 0,
+			"linear": 1,
+			"arc": 0,
+			"falling": true,
+			"ceiling": false,
+			"fragile": false,
+			"slide": false,
+			"hanging": false,
+			"attach": false,
+			"attachIgnore": []
+		},
 		"blocks": [
 			"minecraft:grass_block",
 			"minecraft:grass_path"
@@ -196,28 +228,29 @@
 			"#minecraft:leaves",
 			"#minecraft:wart_blocks"
 		],
+		"natural": {
+			"mass": 2000.0,
+			"strength": 50.0,
+			"bounce": 0.0,
+			"slideChance": 0.5,
+			"radial": 6,
+			"linear": 5,
+			"arc": 0,
+			"falling": true,
+			"ceiling": true,
+			"fragile": false,
+			"slide": false,
+			"hanging": false,
+			"attach": true,
+			"diagonal": true,
+			"attachIgnore": [
+				"#minecraft:leaves",
+				"#minecraft:wart_blocks"
+			]
+		},
 		"blocks": [
 			"#minecraft:logs"
-		],
-		"natural": {
-			"minecraft:the_nether": {
-				"mass": 2000.0,
-				"strength": 50.0,
-				"bounce": 0.0,
-				"slideChance": 0.5,
-				"radial": 0,
-				"linear": 0,
-				"arc": 0,
-				"falling": false,
-				"ceiling": false,
-				"fragile": false,
-				"slide": false,
-				"hanging": false,
-				"attach": true,
-				"diagonal": true,
-				"attachIgnore": []
-			}
-		}
+		]
 	},
 	"leaves": {
 		"mass": 50.0,

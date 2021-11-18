@@ -6,7 +6,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -16,6 +15,8 @@ import net.minecraft.resources.IResource;
 import net.minecraft.resources.IResourceManager;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.skds.bpo.BPO;
+import net.skds.bpo.blockphysics.ConversionPars;
+import net.skds.bpo.util.BFUtils.ParsGroup;
 import net.skds.core.api.IBlockExtended;
 import net.skds.core.api.IJsonConfigUnit;
 import net.skds.core.util.CustomBlockPars;
@@ -119,13 +120,4 @@ public class JCRUConv implements IJsonConfigUnit {
 		});
 	}
 
-	public static class ParsGroup<A> {
-		public final Set<Block> blocks;
-		public final A param;
-
-		ParsGroup(A p, Set<Block> blockList) {
-			param = p;
-			blocks = blockList;
-		}
-	}
 }
