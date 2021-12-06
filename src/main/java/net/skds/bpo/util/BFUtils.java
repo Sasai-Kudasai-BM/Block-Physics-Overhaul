@@ -25,7 +25,7 @@ import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.IChunk;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.skds.bpo.BPOConfig;
-import net.skds.bpo.blockphysics.BlockPhysicsPars;
+import net.skds.bpo.blockphysics.BlockPhysicsData;
 import net.skds.bpo.blockphysics.ConversionPars;
 import net.skds.bpo.blockphysics.FeatureContainer;
 import net.skds.bpo.blockphysics.WWS;
@@ -64,19 +64,19 @@ public class BFUtils {
 		return fe;
 	}
 
-	public static BlockPhysicsPars getParam(Block b, BlockPos pos, World world) {
+	public static BlockPhysicsData getParam(Block b, BlockPos pos, World world) {
 		if (b instanceof AirBlock) {
-			return BlockPhysicsPars.DEFAULT_AIR;
+			return BlockPhysicsData.DEFAULT_AIR;
 		}
 		CustomBlockPars cbp = ((IBlockExtended) b).getCustomBlockPars();
-		BlockPhysicsPars par = cbp.get(BlockPhysicsPars.class);
+		BlockPhysicsData par = cbp.get(BlockPhysicsData.class);
 		if (par == null) {
 			boolean empty = b.getDefaultState().getCollisionShape(world, pos).isEmpty();
 			@SuppressWarnings("deprecation")
 			float res = b.getExplosionResistance();
-			par = new BlockPhysicsPars(b, empty, res);
+			par = new BlockPhysicsData(b, empty, res);
 			cbp.put(par);
-		} else if (par.natural != null && !world.isRemote) {
+		} else if (par.getNatural() != null && !world.isRemote) {
 			long lpos = ChunkPos.asLong(pos.getX() >> 4, pos.getZ() >> 4);
 			AbstractChunkProvider prov = world.getChunkProvider();
 			IChunk iChunk = ((IServerChunkProvider) prov).getCustomChunk(lpos);
@@ -87,14 +87,14 @@ public class BFUtils {
 					if (data != null) {
 						if (data.isNatural(pos.getX(), pos.getY(), pos.getZ())) {
 							//System.out.println("x");
-							return par.natural;
+							return par.getNatural();
 						}
 					}
 				}
 			}
-		} else if (par.dimOver != null) {
+		} else if (par.getDimOver() != null) {
 			String worldName = world.getDimensionKey().getLocation().toString();
-			BlockPhysicsPars worldPar = par.dimOver.get(worldName);
+			BlockPhysicsData worldPar = par.getDimOver().get(worldName);
 			if (worldPar != null) {
 				//System.out.println(worldPar);
 				return worldPar;

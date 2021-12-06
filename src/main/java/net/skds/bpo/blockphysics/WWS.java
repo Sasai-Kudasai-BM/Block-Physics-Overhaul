@@ -8,6 +8,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.world.server.ServerWorld;
 import net.skds.bpo.BPOConfig;
+import net.skds.bpo.blockphysics.explosion.CustomExplosion;
 import net.skds.bpo.entity.AdvancedFallingBlockEntity;
 import net.skds.bpo.util.collision.CollisionMap;
 import net.skds.core.Events;
@@ -33,6 +34,8 @@ public class WWS implements IWWS {
 	private static ConcurrentSkipListSet<BFTask> TASKS = new ConcurrentSkipListSet<>(WWS::compare);
 	private static int T_COUNT = 0;
 	private static ConcurrentLinkedQueue<AdvancedFallingBlockEntity> AFBETasks = new ConcurrentLinkedQueue<>();
+
+	public ConcurrentLinkedQueue<CustomExplosion> explosions = new ConcurrentLinkedQueue<>();
 
 	public WWS(ServerWorld w, WWSGlobal owner) {
 		world = (ServerWorld) w;

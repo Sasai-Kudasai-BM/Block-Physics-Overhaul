@@ -10,7 +10,7 @@ public class ChunkData implements IChunkSectionData {
 
 	public final ChunkSectionAdditionalData sectionData;
 	private final Side side;
-	private long[] naturalData = new long[64];
+	private long[] naturalData = new long[0];
 
 	public ChunkData(ChunkSectionAdditionalData sectionData, Side side) {
 		this.side = side;
@@ -20,9 +20,13 @@ public class ChunkData implements IChunkSectionData {
 	@Override
 	public void deserialize(CompoundNBT nbt) {
 		long[] array = nbt.getLongArray("NaturalGen");
-		if (array.length == 64) {
+		if (array.length == 64 || array.length == 0) {
 			naturalData = array;
 		}
+	}
+
+	private boolean isEmpty() {
+		return naturalData.length == 0;
 	}
 
 	@Override
@@ -44,6 +48,9 @@ public class ChunkData implements IChunkSectionData {
 	}
 
 	public boolean isNatural(int x, int y, int z) {
+		if (isEmpty()) {
+			return true;
+		}
 		int n = getIndex(x, y, z);
 		long l = naturalData[n / 64];
 		long a = 1L << (n & 63);
@@ -56,8 +63,13 @@ public class ChunkData implements IChunkSectionData {
 		int n = getIndex(x, y, z);
 		long a = 1L << (n & 63);
 		if (value) {
-			naturalData[n / 64] &= ~a;
+			if (!isEmpty()) {
+				naturalData[n / 64] &= ~a;
+			}
 		} else {
+			if (isEmpty()) {
+				naturalData = new long[64];
+			}
 			naturalData[n / 64] |= a;		
 		}
 	}

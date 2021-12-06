@@ -74,23 +74,34 @@
 		"attach": false,
 		"attachIgnore": [],
 		"natural": {
-			"mass": 2000.0,
-			"strength": 10.0,
-			"bounce": 0.0,
-			"slideChance": 0.5,
-			"radial": 0,
-			"linear": 0,
 			"arc": 1,
-			"falling": true,
-			"ceiling": false,
-			"fragile": false,
-			"slide": false,
-			"hanging": false,
-			"attach": false,
-			"attachIgnore": []
+			"slide": false
 		},
 		"blocks": [
 			"#forge:dirt",
+			"#forge:sand",
+			"#forge:gravel"
+		]
+	},
+	"sand": {
+		"mass": 2000.0,
+		"strength": 10.0,
+		"bounce": 0.0,
+		"slideChance": 0.5,
+		"radial": 0,
+		"linear": 0,
+		"arc": 0,
+		"falling": true,
+		"ceiling": false,
+		"fragile": false,
+		"slide": true,
+		"hanging": false,
+		"attach": false,
+		"attachIgnore": [],
+		"natural": {
+			"slide": false
+		},
+		"blocks": [
 			"#forge:sand",
 			"#forge:gravel"
 		]
@@ -111,20 +122,8 @@
 		"attach": false,
 		"attachIgnore": [],
 		"natural": {
-			"mass": 2000.0,
-			"strength": 10.0,
-			"bounce": 0.0,
-			"slideChance": 0.5,
-			"radial": 0,
-			"linear": 1,
-			"arc": 0,
-			"falling": true,
-			"ceiling": false,
-			"fragile": false,
-			"slide": false,
-			"hanging": false,
-			"attach": false,
-			"attachIgnore": []
+			"arc": 1,
+			"slide": false
 		},
 		"blocks": [
 			"minecraft:grass_block",
@@ -166,9 +165,30 @@
 		"attach": false,
 		"attachIgnore": [],
 		"blocks": [
-			"minecraft:glowstone",
 			"#forge:glass",
 			"#forge:glass_panes"
+		]
+	},
+	"glowstone": {
+		"mass": 2000.0,
+		"strength": 10.0,
+		"bounce": 0.0,
+		"slideChance": 0.5,
+		"radial": 0,
+		"linear": 2,
+		"arc": 0,
+		"falling": true,
+		"ceiling": false,
+		"fragile": true,
+		"slide": false,
+		"hanging": false,
+		"attach": false,
+		"attachIgnore": [],
+		"natural": {
+			"falling": false
+		},
+		"blocks": [
+			"minecraft:glowstone"
 		]
 	},
 	"fragile": {
@@ -229,24 +249,7 @@
 			"#minecraft:wart_blocks"
 		],
 		"natural": {
-			"mass": 2000.0,
-			"strength": 50.0,
-			"bounce": 0.0,
-			"slideChance": 0.5,
-			"radial": 6,
-			"linear": 5,
-			"arc": 0,
-			"falling": true,
-			"ceiling": true,
-			"fragile": false,
-			"slide": false,
-			"hanging": false,
-			"attach": true,
-			"diagonal": true,
-			"attachIgnore": [
-				"#minecraft:leaves",
-				"#minecraft:wart_blocks"
-			]
+			"diagonal": true
 		},
 		"blocks": [
 			"#minecraft:logs"
@@ -332,24 +335,8 @@
 			"minecraft:netherrack",
 			"minecraft:basalt"
 		],
-		"dimensionOverrides": {
-			"minecraft:the_nether": {
-				"mass": 2000.0,
-				"strength": 50.0,
-				"bounce": 0.0,
-				"slideChance": 0.5,
-				"radial": 0,
-				"linear": 0,
-				"arc": 0,
-				"falling": false,
-				"ceiling": false,
-				"fragile": false,
-				"slide": false,
-				"hanging": false,
-				"attach": true,
-				"diagonal": false,
-				"attachIgnore": []
-			}
+		"natural": {
+			"falling": false
 		}
 	},
 	"soul_sand": {
@@ -371,24 +358,8 @@
 			"minecraft:soul_sand",
 			"minecraft:soul_soil"
 		],
-		"dimensionOverrides": {
-			"minecraft:the_nether": {
-				"mass": 2000.0,
-				"strength": 50.0,
-				"bounce": 0.0,
-				"slideChance": 0.5,
-				"radial": 0,
-				"linear": 0,
-				"arc": 0,
-				"falling": false,
-				"ceiling": false,
-				"fragile": false,
-				"slide": false,
-				"hanging": false,
-				"attach": true,
-				"diagonal": false,
-				"attachIgnore": []
-			}
+		"natural": {
+			"falling": false
 		}
 	},
 	"scaff": {
@@ -427,6 +398,28 @@
 		"attachIgnore": [],
 		"blocks": [
 			"minecraft:slime_block"
+		]
+	},
+	"bones": {
+		"mass": 700.0,
+		"strength": 25.0,
+		"bounce": 0.0,
+		"slideChance": 0.5,
+		"radial": 0,
+		"linear": 4,
+		"arc": 0,
+		"falling": true,
+		"ceiling": false,
+		"fragile": false,
+		"slide": false,
+		"hanging": false,
+		"attach": true,
+		"attachIgnore": [],
+		"natural": {
+			"diagonal": true
+		},
+		"blocks": [
+			"minecraft:bone_block"
 		]
 	}
 }

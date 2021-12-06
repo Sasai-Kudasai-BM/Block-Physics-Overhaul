@@ -37,7 +37,7 @@ public class BFManager {
 			return;
 		}
 		BFTask task = new BFTask(wws, pos, type);
-		BlockPhysicsPars param = BFUtils.getParam(block, pos, w);
+		BlockPhysicsData param = BFUtils.getParam(block, pos, w);
 		// WWS.pushTask(task);
 		int time = 0;
 		switch (type) {
@@ -177,7 +177,7 @@ public class BFManager {
 				}
 			}
 
-			BlockPhysicsPars fallParam = BFExecutor.getParam(fallstate.getBlock(), w, pos);
+			BlockPhysicsData fallParam = BFExecutor.getParam(fallstate.getBlock(), w, pos);
 
 			// entity.fallTime = 1;
 			entity.setMotion(motion);

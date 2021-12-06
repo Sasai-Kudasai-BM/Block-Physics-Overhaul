@@ -21,7 +21,6 @@ import net.minecraft.world.server.ChunkHolder;
 import net.minecraft.world.server.ServerWorld;
 import net.skds.bpo.BPOConfig;
 import net.skds.bpo.blockphysics.BFTask.Type;
-import net.skds.bpo.blockphysics.features.IFeature;
 import net.skds.bpo.entity.AdvancedFallingBlockEntity;
 import net.skds.bpo.util.BFUtils;
 import net.skds.core.util.blockupdate.BasicExecutor;
@@ -38,7 +37,7 @@ public class BFExecutor extends BasicExecutor {
 	private final Block block;
 	private final BFTask task;
 	// private final BFTask.Type type;
-	private final BlockPhysicsPars param;
+	private final BlockPhysicsData param;
 	private final FeatureContainer feature;
 	private final WWS castOwner;
 
@@ -164,7 +163,7 @@ public class BFExecutor extends BasicExecutor {
 		}
 		Material mat = state.getMaterial();
 		boolean b = mat.isReplaceable();
-		BlockPhysicsPars bp = getParam(state);
+		BlockPhysicsData bp = getParam(state);
 		b = b || (bp.fragile && bp.strength < 0.001);
 
 		return b;
@@ -198,7 +197,7 @@ public class BFExecutor extends BasicExecutor {
 						}
 					}
 
-					BlockPhysicsPars fallParam = getParam(fallstate);
+					BlockPhysicsData fallParam = getParam(fallstate);
 
 					// entity.fallTime = 1;
 					entity.slideDirection = (byte) d.getHorizontalIndex();
@@ -320,7 +319,7 @@ public class BFExecutor extends BasicExecutor {
 			}
 		}
 
-		BlockPhysicsPars fallParam = getParam(fallstate);
+		BlockPhysicsData fallParam = getParam(fallstate);
 
 		if (fire) {
 			entity.setFire(100);
@@ -335,11 +334,11 @@ public class BFExecutor extends BasicExecutor {
 	}
 
 	@SuppressWarnings("unused")
-	private boolean tryHang(BlockPos pos0, BlockState state0, BlockPhysicsPars param0, float force) {
+	private boolean tryHang(BlockPos pos0, BlockState state0, BlockPhysicsData param0, float force) {
 		return false;
 	}
 
-	private boolean checkSnap(BlockPos pos0, BlockState state0, BlockPhysicsPars param0) {
+	private boolean checkSnap(BlockPos pos0, BlockState state0, BlockPhysicsData param0) {
 
 		boolean usp = false;
 		if (task.type != Type.DOWNRAY) {
@@ -371,12 +370,12 @@ public class BFExecutor extends BasicExecutor {
 		return bl;
 	}
 
-	private boolean checkDiagonal(BlockPos pos0, BlockState state0, BlockPhysicsPars param0) {
+	private boolean checkDiagonal(BlockPos pos0, BlockState state0, BlockPhysicsData param0) {
 		for (Direction dir : Direction.Plane.HORIZONTAL) {
 			BlockPos pos1 = pos0.offset(dir);
 			BlockPos pos1d = pos1.down();
 			BlockState state1d = getBlockState(pos1d);
-			BlockPhysicsPars par1d = getParam(state1d);
+			BlockPhysicsData par1d = getParam(state1d);
 			if (canSupport(state0, state1d, pos0, pos1, param0, par1d, param0.mass * G)) {
 				addDownrayTask(pos1d);
 				return true;
@@ -390,7 +389,7 @@ public class BFExecutor extends BasicExecutor {
 			// }
 			BlockPos pos2d = pos2.down();
 			BlockState state2d = getBlockState(pos2d);
-			BlockPhysicsPars par2d = getParam(state2d);
+			BlockPhysicsData par2d = getParam(state2d);
 			if (canSupport(state0, state2d, pos0, pos1, param0, par2d, param0.mass * G)) {
 				addDownrayTask(pos2);
 				return true;
@@ -402,21 +401,21 @@ public class BFExecutor extends BasicExecutor {
 		return false;
 	}
 
-	private boolean checkUpray(BlockPos pos0, BlockState state0, BlockPhysicsPars param0) {
+	private boolean checkUpray(BlockPos pos0, BlockState state0, BlockPhysicsData param0) {
 		return checkRay(pos0, state0, param0, true);
 	}
 
-	private boolean checkDownray(BlockPos pos0, BlockState state0, BlockPhysicsPars param0) {
+	private boolean checkDownray(BlockPos pos0, BlockState state0, BlockPhysicsData param0) {
 		return checkRay(pos0, state0, param0, false);
 	}
 
-	private boolean checkRay(BlockPos pos0, BlockState state0, BlockPhysicsPars param0, boolean up) {
+	private boolean checkRay(BlockPos pos0, BlockState state0, BlockPhysicsData param0, boolean up) {
 		BlockPos pos2 = pos0;
 		BlockState state2 = state0;
 		BlockState state1;
 		BlockPos pos1;
-		BlockPhysicsPars par1;
-		BlockPhysicsPars par2 = param0;
+		BlockPhysicsData par1;
+		BlockPhysicsData par2 = param0;
 		float force = param0.mass * G;
 		boolean sucess = false;
 		boolean ds = false;
@@ -458,7 +457,7 @@ public class BFExecutor extends BasicExecutor {
 		return sucess;
 	}
 
-	private boolean checkArc(BlockPos pos0, BlockState state0, BlockPhysicsPars par0) {
+	private boolean checkArc(BlockPos pos0, BlockState state0, BlockPhysicsData par0) {
 
 		int[] holdDist = new int[4];
 
@@ -468,11 +467,11 @@ public class BFExecutor extends BasicExecutor {
 			boolean success = false;
 			BlockPos pos1 = pos0;
 			BlockState state1 = state0;
-			BlockPhysicsPars par1 = par0;
+			BlockPhysicsData par1 = par0;
 			w1: while (d++ <= par0.arc && !success) {
 				BlockPos pos2 = pos1.offset(dir);
 				BlockState state2 = getBlockState(pos2);
-				BlockPhysicsPars par2 = getParam(state2);
+				BlockPhysicsData par2 = getParam(state2);
 				force += par2.mass * G;
 				if (canSupport(state1, state2, pos1, pos2, par1, par2, force, true)) {
 					if (supportDown(pos2, state2, par2, force)) {
@@ -502,11 +501,11 @@ public class BFExecutor extends BasicExecutor {
 			boolean upped = false;
 			BlockPos pos1 = pos0;
 			BlockState state1 = state0;
-			BlockPhysicsPars par1 = par0;
+			BlockPhysicsData par1 = par0;
 			w1: while (d++ <= par0.arc && !success) {
 				BlockPos pos2 = pos1.offset(dir);
 				BlockState state2 = getBlockState(pos2);
-				BlockPhysicsPars par2 = getParam(state2);
+				BlockPhysicsData par2 = getParam(state2);
 				force += par2.mass * G;
 				boolean el = true;
 				if (canSupport(state1, state2, pos1, pos2, par1, par2, force, true)) {
@@ -550,7 +549,7 @@ public class BFExecutor extends BasicExecutor {
 		return false;
 	}
 
-	private boolean checkCeiling(BlockPos pos1, BlockState state1, BlockPhysicsPars par1) {
+	private boolean checkCeiling(BlockPos pos1, BlockState state1, BlockPhysicsData par1) {
 
 		//boolean mode = task.type != Type.DOWNRAY;
 		boolean mode = true;
@@ -559,12 +558,12 @@ public class BFExecutor extends BasicExecutor {
 
 		BlockPos pos2 = pos1.offset(dir);
 		BlockState state2 = getBlockState(pos2);
-		BlockPhysicsPars par2 = getParam(state2);
+		BlockPhysicsData par2 = getParam(state2);
 		float force = par1.mass * G;
 		if (canSupport(state1, state2, pos1, pos2, par1, par2, force, mode)) {
 			BlockPos pos3 = pos1.offset(dir.getOpposite());
 			BlockState state3 = getBlockState(pos3);
-			BlockPhysicsPars par3 = getParam(state3);
+			BlockPhysicsData par3 = getParam(state3);
 			if (canSupport(state1, state3, pos1, pos3, par1, par3, force, mode)) {
 				if (proofCeli(pos2, state2, par2, dir, mode, force)
 						&& proofCeli(pos3, state3, par3, dir.getOpposite(), mode, force)) {
@@ -579,7 +578,7 @@ public class BFExecutor extends BasicExecutor {
 		if (canSupport(state1, state2, pos1, pos2, par1, par2, force, mode)) {
 			BlockPos pos3 = pos1.offset(dir.getOpposite());
 			BlockState state3 = getBlockState(pos3);
-			BlockPhysicsPars par3 = getParam(state3);
+			BlockPhysicsData par3 = getParam(state3);
 			if (canSupport(state1, state3, pos1, pos3, par1, par3, force, mode)) {
 				if (proofCeli(pos2, state2, par2, dir, mode, force)
 						&& proofCeli(pos3, state3, par3, dir.getOpposite(), mode, force)) {
@@ -591,19 +590,19 @@ public class BFExecutor extends BasicExecutor {
 		return false;
 	}
 
-	private boolean proofCeli(BlockPos pos0, BlockState state0, BlockPhysicsPars param0, Direction dir, boolean mode,
+	private boolean proofCeli(BlockPos pos0, BlockState state0, BlockPhysicsData param0, Direction dir, boolean mode,
 			float force) {
 		int maxDist = 32;
 		int dist = 0;
 		BlockPos pos1 = pos0;
 		BlockState state1 = state0;
-		BlockPhysicsPars par1 = param0;
+		BlockPhysicsData par1 = param0;
 
 		while (dist++ <= maxDist) {
 			force += (par1.mass * G);
 			BlockPos pos2 = pos1.offset(dir);
 			BlockState state2 = getBlockState(pos2);
-			BlockPhysicsPars par2 = getParam(state2);
+			BlockPhysicsData par2 = getParam(state2);
 			if (canSupport(state1, state2, pos1, pos2, par1, par2, force, mode)) {
 				if (supportDown(pos2, state2, par2, force)) {
 					return true;
@@ -620,7 +619,7 @@ public class BFExecutor extends BasicExecutor {
 		return false;
 	}
 
-	private boolean checkPane(BlockPos pos, BlockState state, BlockPhysicsPars param, boolean usp) {
+	private boolean checkPane(BlockPos pos, BlockState state, BlockPhysicsData param, boolean usp) {
 
 		Set<BlockPos> posset = new HashSet<>();
 
@@ -636,14 +635,14 @@ public class BFExecutor extends BasicExecutor {
 			float force = param.mass * G;
 			BlockPos pos1 = pos;
 			BlockState state1 = state;
-			BlockPhysicsPars par1 = param;
+			BlockPhysicsData par1 = param;
 			posset.add(pos);
 			while (i < dist) {
 				++i;
 
 				BlockPos pos2 = pos.offset(dir, i);
 				BlockState state2 = getBlockState(pos2);
-				BlockPhysicsPars par2 = getParam(state2);
+				BlockPhysicsData par2 = getParam(state2);
 				posset.add(pos2);
 
 				if (canSupport(state1, state2, pos1, pos2, par1, par2, force)) {
@@ -679,7 +678,7 @@ public class BFExecutor extends BasicExecutor {
 
 	private static boolean ssa = false;
 
-	private boolean radialize(BlockPos pos0, BlockState state0, BlockPhysicsPars par0, Direction dir0, float force0,
+	private boolean radialize(BlockPos pos0, BlockState state0, BlockPhysicsData par0, Direction dir0, float force0,
 			Set<BlockPos> set, int dist0) {
 
 		Set<Quad> ths = new HashSet<>();
@@ -709,7 +708,7 @@ public class BFExecutor extends BasicExecutor {
 					}
 					// debug(q.pos);
 					BlockState state2 = getBlockState(pos2);
-					BlockPhysicsPars par2 = getParam(state2);
+					BlockPhysicsData par2 = getParam(state2);
 					if (canSupport(q.state, state2, q.pos, pos2, q.par, par2, force0 + (q.par.mass * G))) {
 						next.add(new Quad(pos2, state2, par2, q.dist - 1));
 					}
@@ -724,14 +723,17 @@ public class BFExecutor extends BasicExecutor {
 		return pos.getX() == pos2.getX() || pos.getZ() == pos2.getZ();
 	}
 
-	private boolean supportDown(BlockPos pos0, BlockState state0, BlockPhysicsPars par0, float force) {
+	private boolean supportDown(BlockPos pos0, BlockState state0, BlockPhysicsData par0, float force) {
 		BlockPos posd = pos0.down();
 		BlockState stated = getBlockState(posd);
-		BlockPhysicsPars pard = getParam(stated);
+		BlockPhysicsData pard = getParam(stated);
 		// float force2 = force + (pard.mass * G);
 		if (canSupport(state0, stated, pos0, posd, par0, pard, force)) {
 			// System.out.println(posd);
 			addDownrayTask(posd);
+			return true;
+		}
+		if (par0.diagonal && checkDiagonal(pos0, state0, par0)) {
 			return true;
 		}
 		// debug(pos0);
@@ -749,30 +751,37 @@ public class BFExecutor extends BasicExecutor {
 	private boolean checkLogs(BlockState state1, BlockState state2, Direction dir) {
 		FeatureContainer fc1 = BFUtils.getFeatures(state1.getBlock());
 		FeatureContainer fc2 = BFUtils.getFeatures(state2.getBlock());
-		if (checkLog(fc1, state1, dir) || checkLog(fc2, state2, dir)) {
-			return true;
-		}
-		return false;
-	}
 
-	private boolean checkLog(FeatureContainer fc, BlockState state1, Direction dir) {
+		boolean c = false;
 		boolean bl = false;
-		if (fc != null && !fc.isEmpty()) {
-			if (fc.contains(FeatureContainer.Simple.LOGS)) {
+		if (fc1 != null && !fc1.isEmpty()) {
+			if (fc1.contains(FeatureContainer.Simple.LOGS)) {
+				c = true;
 				bl = !state1.get(BlockStateProperties.AXIS).equals(dir.getAxis());
 			}
 		}
-		return bl;
+
+		if (bl) {
+			return true;
+		} else if (c) {
+			if (fc2 != null && !fc2.isEmpty()) {
+				if (fc2.contains(FeatureContainer.Simple.LOGS) && !state2.get(BlockStateProperties.AXIS).equals(dir.getAxis())) {
+					return true;
+				}
+			}
+		}
+
+		return false;
 	}
 
 	private boolean canSupport(BlockState state1, BlockState state2, BlockPos pos1, BlockPos pos2,
-			BlockPhysicsPars par1, BlockPhysicsPars par2, float force, boolean... flags) {
+			BlockPhysicsData par1, BlockPhysicsData par2, float force, boolean... flags) {
 		ssa = false;
 		if (isAir(state2) || state2.getBlock() instanceof FlowingFluidBlock ) {
 			return false;
 		}
 		Direction dir = dirFromVec(pos1, pos2);
-		if (checkLogs(state1, state2, dir)) {
+		if (!param.diagonal && dir != Direction.DOWN && checkLogs(state1, state2, dir)) {
 			return false;
 		}
 		boolean arc = false;
@@ -838,11 +847,11 @@ public class BFExecutor extends BasicExecutor {
 		return true;
 	}
 
-	public static BlockPhysicsPars getParam(Block b, World w, BlockPos pos) {
+	public static BlockPhysicsData getParam(Block b, World w, BlockPos pos) {
 		return BFUtils.getParam(b, pos, w);
 	}
 
-	private BlockPhysicsPars getParam(BlockState s) {
+	private BlockPhysicsData getParam(BlockState s) {
 		return getParam(s.getBlock(), w, pos);
 	}
 
@@ -863,10 +872,10 @@ public class BFExecutor extends BasicExecutor {
 	private static class Quad {
 		public final BlockPos pos;
 		public final BlockState state;
-		public final BlockPhysicsPars par;
+		public final BlockPhysicsData par;
 		public final int dist;
 
-		public Quad(BlockPos pos, BlockState state, BlockPhysicsPars par, int dist) {
+		public Quad(BlockPos pos, BlockState state, BlockPhysicsData par, int dist) {
 			this.pos = pos;
 			this.state = state;
 			this.par = par;

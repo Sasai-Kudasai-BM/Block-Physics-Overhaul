@@ -1,9 +1,13 @@
 package net.skds.bpo;
 
+import com.mojang.brigadier.CommandDispatcher;
+
+import net.minecraft.command.CommandSource;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.Explosion;
 import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
+import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.event.TagsUpdatedEvent;
 import net.minecraftforge.event.TickEvent.Phase;
 import net.minecraftforge.event.TickEvent.ServerTickEvent;
@@ -13,6 +17,8 @@ import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.server.FMLServerStartedEvent;
 import net.skds.bpo.blockphysics.ExplosionPlug;
 import net.skds.bpo.blockphysics.WWS;
+import net.skds.bpo.blockphysics.explosion.CustomExplosion;
+import net.skds.bpo.commands.ExplosionCommand;
 import net.skds.bpo.mixins.ExplosionMixin;
 import net.skds.bpo.network.Packets;
 import net.skds.bpo.util.pars.JCRUConv;
@@ -82,6 +88,14 @@ public class Events {
 
 	@SubscribeEvent
 	public void onExplode(ExplosionEvent.Start e) {
+		//e.setCanceled(true);
+		//Explosion ex = e.getExplosion();
+		//CustomExplosion ce = new CustomExplosion(e.getWorld(), ex.getPosition(), ((ExplosionMixin) ex).getPower() * (float) BPOConfig.MAIN.explosionMultiplier, ex);
+		//try {			
+		//	ce.explode();
+		//} catch (Exception exception) {
+		//	BPO.LOGGER.error(exception);
+		//}
 	}
 
 	@SubscribeEvent
@@ -92,4 +106,11 @@ public class Events {
 				((ExplosionMixin) ex).getPower() * (float) BPOConfig.MAIN.explosionMultiplier, ex);
 		ep.explode();
 	}
+
+	@SubscribeEvent
+	public void commandsReg(RegisterCommandsEvent e) {
+		CommandDispatcher<CommandSource> dispatcher = e.getDispatcher();
+		dispatcher.register(ExplosionCommand.reg());
+	}
+
 }

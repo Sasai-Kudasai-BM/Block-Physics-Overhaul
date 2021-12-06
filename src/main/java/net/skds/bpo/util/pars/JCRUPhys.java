@@ -15,7 +15,7 @@ import net.minecraft.resources.IResource;
 import net.minecraft.resources.IResourceManager;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.skds.bpo.BPO;
-import net.skds.bpo.blockphysics.BlockPhysicsPars;
+import net.skds.bpo.blockphysics.BlockPhysicsData;
 import net.skds.bpo.util.BFUtils.ParsGroup;
 import net.skds.core.api.IBlockExtended;
 import net.skds.core.api.IJsonConfigUnit;
@@ -29,7 +29,7 @@ public class JCRUPhys implements IJsonConfigUnit {
 
 	private boolean clear = true;
 
-	public static void applyBlockPhysicsPars(ParsGroup<BlockPhysicsPars> BG) {
+	public static void applyBlockPhysicsPars(ParsGroup<BlockPhysicsData> BG) {
 		for (Block b : BG.blocks) {
 			CustomBlockPars pars = ((IBlockExtended) b).getCustomBlockPars();
 			pars.put(BG.param);
@@ -59,14 +59,15 @@ public class JCRUPhys implements IJsonConfigUnit {
 	@Override
 	public boolean apply(JsonObject jo) {
 
-		List<ParsGroup<BlockPhysicsPars>> list = new ArrayList<>();
+		List<ParsGroup<BlockPhysicsData>> list = new ArrayList<>();
 
 		for (Map.Entry<String, JsonElement> e : jo.entrySet()) {
 			String key = e.getKey();
-			ParsGroup<BlockPhysicsPars> group = null;
+			ParsGroup<BlockPhysicsData> group = null;
 			try {
-				group = BlockPhysicsPars.readFromJson(e.getValue(), key);
+				group = BlockPhysicsData.readFromJson(e.getValue(), key);
 			} catch (Exception ex) {
+				LOGGER.error(ex);
 			}
 			if (group != null) {
 				list.add(group);
@@ -80,11 +81,11 @@ public class JCRUPhys implements IJsonConfigUnit {
 		if (clear) {
 			LOGGER.info("Cleaning old blockphysics config data...");
 			ForgeRegistries.BLOCKS.getValues().forEach(block -> {
-				((IBlockExtended) block).getCustomBlockPars().clear(BlockPhysicsPars.class);
+				((IBlockExtended) block).getCustomBlockPars().clear(BlockPhysicsData.class);
 			});
 		}
 		LOGGER.info("Reading blockphysics configs...");
-		for (ParsGroup<BlockPhysicsPars> pg : list) {			
+		for (ParsGroup<BlockPhysicsData> pg : list) {			
 			applyBlockPhysicsPars(pg);
 			//System.out.println(pg.param.name);
 		}

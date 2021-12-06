@@ -1,5 +1,6 @@
 package net.skds.bpo.entity;
 
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.stream.Stream;
@@ -43,7 +44,7 @@ import net.minecraftforge.fml.network.NetworkHooks;
 import net.skds.bpo.BPO;
 import net.skds.bpo.BPOConfig;
 import net.skds.bpo.blockphysics.BFExecutor;
-import net.skds.bpo.blockphysics.BlockPhysicsPars;
+import net.skds.bpo.blockphysics.BlockPhysicsData;
 import net.skds.bpo.blockphysics.ConversionPars;
 import net.skds.bpo.blockphysics.WWS;
 import net.skds.bpo.registry.Entities;
@@ -66,7 +67,7 @@ public class AdvancedFallingBlockEntity extends Entity implements IEntityAdditio
 	@OnlyIn(Dist.CLIENT)
 	public byte slideDirectionV = 0;
 
-	public BlockPhysicsPars pars;
+	public BlockPhysicsData pars;
 	public ConversionPars conv;
 
 	public byte slideProgress = -1;
@@ -265,7 +266,7 @@ public class AdvancedFallingBlockEntity extends Entity implements IEntityAdditio
 
 	private void damageEntity(Vector3d vel, Entity e) {
 		double damage = vel.lengthSquared() * pars.mass * 0.02 * BPOConfig.MAIN.damageMultiplier;
-		if (damage > 1) {
+		if (damage > 0.75) {
 			synchronized (e) {
 				e.attackEntityFrom(DAMAGE_SOURCE, (float) damage);
 				// System.out.println(damage);
@@ -279,7 +280,7 @@ public class AdvancedFallingBlockEntity extends Entity implements IEntityAdditio
 		}
 		Material mat = state.getMaterial();
 		boolean b = mat.isReplaceable();
-		BlockPhysicsPars bp = getParam(state);
+		BlockPhysicsData bp = getParam(state);
 		b = b || (bp.fragile && bp.strength < 0.001);
 
 		return b;
@@ -523,6 +524,7 @@ public class AdvancedFallingBlockEntity extends Entity implements IEntityAdditio
 		Vector3d shift = motion.normalize().scale(0.5);
 		AxisAlignedBB box = getBoundingBox().offset(shift);
 		Set<BlockPos> con = BFUtils.getBlockPoses(box);
+		Set<BlockPos> con2 = new HashSet<>(con);
 		double mv2c = motion.lengthSquared() * pars.mass * 4.0E-2;
 		synchronized (world) {
 			boolean willBreak = true;
@@ -530,8 +532,12 @@ public class AdvancedFallingBlockEntity extends Entity implements IEntityAdditio
 			double mv2c2 = mv2c;
 			for (BlockPos pos : con) {
 				BlockState state = world.getBlockState(pos);
+				if (state.getCollisionShape(world, pos).isEmpty()) {
+					con2.remove(pos);
+					continue;
+				}
 				// if (!state.getCollisionShape(world, pos).isEmpty()) {
-				BlockPhysicsPars par = getParam(state);
+				BlockPhysicsData par = getParam(state);
 				if (par.strength >= pars.strength) {
 					soft = false;
 				}
@@ -765,11 +771,11 @@ public class AdvancedFallingBlockEntity extends Entity implements IEntityAdditio
 		startSlide();
 	}
 
-	private BlockPhysicsPars getParam(Block b) {
+	private BlockPhysicsData getParam(Block b) {
 		return BFUtils.getParam(b, getPosition(), world);
 	}
 
-	private BlockPhysicsPars getParam(BlockState s) {
+	private BlockPhysicsData getParam(BlockState s) {
 		return getParam(s.getBlock());
 	}
 

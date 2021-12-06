@@ -4,5 +4,12 @@
 		"blocks": [
 			"#minecraft:leaves"
 		]
+	},
+	"b": {
+		"type": "LOGS",
+		"blocks": [
+			"#minecraft:logs",
+			"minecraft:bone_block"
+		]
 	}
 }

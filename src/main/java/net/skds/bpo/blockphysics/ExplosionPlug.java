@@ -36,7 +36,7 @@ public class ExplosionPlug {
 			}
 			world.setBlockState(bp, Blocks.AIR.getDefaultState(), 0);
 			AdvancedFallingBlockEntity e = new AdvancedFallingBlockEntity(world, bp.getX() + 0.5, bp.getY(), bp.getZ() + 0.5, bs);
-			//e.fallTime = -5;
+			e.fallTime = -5;
 			Vector3d delta = e.getPositionVec().subtract(pos);
 			float m = 5;
 			Vector3d motion = delta.normalize().scale((power / 4f) * m * 1f / (/*delta.lengthSquared() */ Math.sqrt(e.pars.mass)));
