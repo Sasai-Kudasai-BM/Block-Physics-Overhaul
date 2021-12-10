@@ -17,7 +17,6 @@ import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.server.FMLServerStartedEvent;
 import net.skds.bpo.blockphysics.ExplosionPlug;
 import net.skds.bpo.blockphysics.WWS;
-import net.skds.bpo.blockphysics.explosion.CustomExplosion;
 import net.skds.bpo.commands.ExplosionCommand;
 import net.skds.bpo.mixins.ExplosionMixin;
 import net.skds.bpo.network.Packets;
@@ -50,7 +49,9 @@ public class Events {
 	public void onWWSAttach(OnWWSAttachEvent e) {
 		WWSGlobal wwsg = e.getWWS();
 		World w = e.getWorld();
-		if (!w.isRemote) {
+		if (w.isRemote) {
+
+		} else {
 			WWS w1 = new WWS((ServerWorld) w, wwsg);
 			wwsg.addWWS(w1);
 		}

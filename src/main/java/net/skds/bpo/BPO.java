@@ -6,12 +6,11 @@ import org.apache.logging.log4j.Logger;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.skds.bpo.registry.DataSerialize;
 import net.skds.bpo.registry.Entities;
-import net.skds.bpo.registry.RenderRegistry;
+import net.skds.bpo.registry.ParticleTypesReg;
 import net.skds.bpo.util.data.ChunkData;
 import net.skds.core.util.SKDSUtils.Side;
 import net.skds.core.util.data.ChunkSectionAdditionalData;
@@ -30,7 +29,6 @@ public class BPO {
 
 	public BPO() {
 		FMLJavaModLoadingContext.get().getModEventBus().addListener(this::setup);
-		FMLJavaModLoadingContext.get().getModEventBus().addListener(this::doClientStuff);
 		FMLJavaModLoadingContext.get().getModEventBus().addListener(EVENTS::onPacketReg);
 		FMLJavaModLoadingContext.get().getModEventBus().addListener(EVENTS::onConfigL);
 		FMLJavaModLoadingContext.get().getModEventBus().addListener(EVENTS::onConfigR);
@@ -41,6 +39,7 @@ public class BPO {
 		BPOConfig.init();
 		DataSerialize.register();
 		Entities.register();
+		ParticleTypesReg.register();
 	}
 
 	public static boolean hasWPO() {
@@ -51,9 +50,5 @@ public class BPO {
 	private void setup(final FMLCommonSetupEvent event) {
 		hasWPO = ModList.get().getModObjectById("wpo").isPresent();
 		ChunkSectionAdditionalData.register(ChunkData::new, Side.SERVER);
-	}
-
-	private void doClientStuff(final FMLClientSetupEvent event) {
-		RenderRegistry.register();		
 	}
 }

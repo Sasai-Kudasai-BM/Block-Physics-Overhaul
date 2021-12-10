@@ -1,23 +1,25 @@
 package net.skds.bpo.blockphysics.explosion;
 
 
-import it.unimi.dsi.fastutil.ints.Int2ObjectRBTreeMap;
+import it.unimi.dsi.fastutil.longs.Long2ObjectRBTreeMap;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.SectionPos;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.Explosion;
 import net.minecraft.world.World;
+import net.minecraft.world.server.ServerWorld;
+import net.skds.bpo.blockphysics.WWS;
 import net.skds.bpo.util.IndexedCord;
 import net.skds.core.multithreading.TurboWorldReader;
+import net.skds.core.util.blockupdate.WWSGlobal;
 
 public class CustomExplosion extends IndexedCord {
 
-	static final byte BYTE = (byte) 0xff;
-
-	final static double[] kernel = new double[9];
+	//final static double[] kernel = new double[9];
 
 	public final TurboWorldReader reader;
 
@@ -25,57 +27,40 @@ public class CustomExplosion extends IndexedCord {
 
 	public final float power;
 	public final Vector3d pos;
-	public final World world;
+	public final ServerWorld world;
 	public final Explosion explosion;
 
 	public final int x0, y0, z0;
 
-	Int2ObjectRBTreeMap<EFChunk> map = new Int2ObjectRBTreeMap<>((a, b) -> a - b);
+	public final Long2ObjectRBTreeMap<EFChunk> map;
 
 	public CustomExplosion(World world, Vector3d pos, float power, Explosion explosion) {
 		this.reader = new TurboWorldReader(world);
-		this.world = world;
+		this.world = (ServerWorld) world;
 		this.pos = pos;
 		this.power = power;
 		this.explosion = explosion;
-		this.x0 = (int) pos.x;
-		this.y0 = (int) pos.y;
-		this.z0 = (int) pos.z;
+		this.x0 = ((int) pos.x >> 4) << 4;
+		this.y0 = ((int) pos.y >> 4) << 4;
+		this.z0 = ((int) pos.z >> 4) << 4;
+		
+		WWS wws = WWSGlobal.get(world).getTyped(WWS.class);
+		this.map = wws.explosionMap;
+		//wws.explosions.add(this);
 	}
 
-	public EFChunk put(EFChunk e) {
-		return map.put(e.hashCode(), e);
-	}
-
-	public EFChunk getOrCreate(int index) {
+	public EFChunk getOrCreate(long index) {
 		return map.computeIfAbsentPartial(index, (i) -> new EFChunk(i, this));
 	}
 
-
 	public void explode() {
-		EFChunk c = new EFChunk(this);
-		put(c);
-
-		do {
-			iterate();
-		} while (maxPressure > 0.8);
-	}
-
-	public void iterate() {
-		maxPressure = 0;
-		map.forEach((i, c) -> {
-			c.tickA();
-		});
-		map.forEach((i, c) -> {
-			c.tickB();
-		});
+		long index = SectionPos.asLong((int) pos.x >> 4, (int) pos.y >> 4, (int) pos.z >> 4);
+		EFChunk c = getOrCreate(index);
+		c.setPressure((int) pos.x & 15, (int) pos.y & 15, (int) pos.z & 15, power * 10);
 	}
 
 	void debug(int x, int y, int z, float p, float v) {
 
-		//if (e.isEmpty()) {
-		//	continue;
-		//}
 		v = (float) Math.sqrt(v);
 
 		//Block[] blocks = new Block[] { Blocks.SANDSTONE, Blocks.BROWN_WOOL, Blocks.RED_WOOL, Blocks.ORANGE_WOOL,
@@ -103,23 +88,16 @@ public class CustomExplosion extends IndexedCord {
 			i2 = blocks2.length - 1;
 		}
 
-		BlockState bs = world.getBlockState(new BlockPos(pos.x + x, pos.y + y, pos.z + z));
+		BlockState bs = world.getBlockState(new BlockPos(x, y, z));
 
 		if (bs.isIn(BlockTags.IMPERMEABLE) || bs.isIn(Blocks.AIR)) {
-			world.setBlockState(new BlockPos(pos.x + x, pos.y + y, pos.z + z), blocks2[i].getDefaultState(), 18);
+			world.setBlockState(new BlockPos(x, y, z), blocks2[i].getDefaultState(), 18);
 		}
 
-
-		//world.setBlockState(new BlockPos(pos.x + x, pos.y + y, pos.z + z), blocks2[i2].getDefaultState(), 18);
-
-		//Minecraft.getInstance().world.addParticle(ParticleTypes.FLAME, true, pos.x + x, pos.y + y + 1, pos.z + z, 0, 0.2, 0);
-
-		//if (pressure < 0.01) {
-		//	world.setBlockState(new BlockPos(pos.x + x, pos.y + y, pos.z + z),
-		//			Blocks.BEDROCK.getDefaultState());
-		//}
+		//world.setBlockState(new BlockPos(x, y, z), blocks2[i2].getDefaultState(), 18);
+		//Minecraft.getInstance().world.addParticle(ParticleTypes.FLAME, true, x, y + 1, z, 0, 0.2, 0);
 	}
-
+/*
 	static int k(int i, int j) {
 		return (i + 1) + 3 * (j + 1);
 	}
@@ -141,4 +119,5 @@ public class CustomExplosion extends IndexedCord {
 			}
 		}
 	}
+	*/
 }

@@ -3,12 +3,24 @@ package net.skds.bpo.blockphysics.explosion;
 import java.util.BitSet;
 import java.util.function.IntConsumer;
 
-import net.skds.bpo.util.IndexedCord;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
+import net.minecraft.tags.BlockTags;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.ChunkPos;
+import net.minecraft.util.math.SectionPos;
+import net.minecraft.world.server.ServerChunkProvider;
+import net.skds.bpo.blockphysics.WWS;
+import net.skds.bpo.network.ExplosionPacket;
 import net.skds.bpo.util.IndexedCord4B;
+import net.skds.core.network.PacketHandler;
 
 public class EFChunk extends IndexedCord4B {
 
-	public final byte x, y, z;
+	public ExplosionPacket packet;
+	int datIndex;
+
+	public final int x, y, z;
 
 	public final CustomExplosion exp;
 
@@ -17,66 +29,79 @@ public class EFChunk extends IndexedCord4B {
 	public float[] vz = new float[4096];
 	public float[] p = new float[4096];
 
-	public boolean tick = false;
+	public int emptyLife = 0;
+	public float mp = 1488;
 
 	BitSet tickIndexes = new BitSet(4096);
 	BitSet nextTickIndexes = new BitSet(4096);
 
-	//public long[] tickIndexes = new long[64];
-
-	public EFChunk(CustomExplosion exp) {
-		this.x = 0;
-		this.y = 0;
-		this.z = 0;
+	public EFChunk(long index, CustomExplosion exp) {
+		this.x = SectionPos.extractX(index);
+		this.y = SectionPos.extractY(index);
+		this.z = SectionPos.extractZ(index);
 		this.exp = exp;
-		tickIndexes.set(0);
 
-		float p0 = 50.0f;
+		this.packet = new ExplosionPacket(WWS.EX_STEPS, x, y, z);
 
-		p[0] = p0;
-
-		EFChunk cx = getOrCreate(-1, 0, 0);
-		EFChunk cy = getOrCreate(0, -1, 0);
-		EFChunk cz = getOrCreate(0, 0, -1);
-		
-		int ix = index(-1, 0, 0);
-		int iy = index(0, -1, 0);
-		int iz = index(0, 0, -1);
-
-		cx.addTick(ix);
-		cy.addTick(iy);
-		cz.addTick(iz);
-
-		cx.vx[ix] = -0.33F * p0;
-		cx.vy[iy] = -0.33F * p0;
-		cx.vz[iz] = -0.33F * p0;
+		//if (x == -1 && y ==1 && z ==1) {
+		//System.out.printf("x:%s y:%s z:%s\n", x, y, z);
+		//}
 	}
 
-	public EFChunk(int index, CustomExplosion exp) {
-		this.x = IndexedCord.x(index);
-		this.y = IndexedCord.y(index);
-		this.z = IndexedCord.z(index);
-		this.exp = exp;
+	public void reset() {
+		ServerChunkProvider scp = exp.world.getChunkProvider();
+		scp.chunkManager.getTrackingPlayers(new ChunkPos(x, z), false).forEach(p -> PacketHandler.send(p, packet));
+		packet = new ExplosionPacket(WWS.EX_STEPS, x, y, z);
+	}
 
-		//System.out.printf("x:%s y:%s z:%s\n", x, y, z);
+	public void setPressure(int dx, int dy, int dz, float pressure) {
+		int index = index(dx, dy, dz);
+		tickIndexes.set(index);
+		p[index] = pressure;
+	}
+
+	public boolean isEmpty() {
+		//return tickIndexes.isEmpty() || mp < 0.8f;
+		//System.out.println(mp);
+		return emptyLife > 3;
+		//return tickIndexes.isEmpty();
 	}
 
 	public void iterate(IntConsumer func) {
-		tick = false;
 		int index = 0;
 		if (tickIndexes.get(index)) {
 			func.accept(index);
-			tick = true;
 		}
 		while ((index = tickIndexes.nextSetBit(index + 1)) != -1) {
 			func.accept(index);
-			tick = true;
 		}
 	}
 
 	public void swap() {
 		tickIndexes = nextTickIndexes;
 		nextTickIndexes = new BitSet(4096);
+		packet.cords = new BitSet(4096);
+		packet.data = new byte[tickIndexes.size()];
+		datIndex = 0;
+		iterate((index) -> {
+			pack(index, packet.cords);
+		});
+		packet.writeStep();
+	}
+
+	public void pack(int i, BitSet set) {
+
+		if (p[i] > 1) {
+			final float k = 0.001f;
+			byte bp = 0;
+			byte bx = (byte) (vx[i] > k ? 2 : vx[i] < -k ? 0 : 1);
+			byte by = (byte) (vy[i] > k ? 8 : vy[i] < -k ? 0 : 4);
+			byte bz = (byte) (vz[i] > k ? 32 : vz[i] < -k ? 0 : 16);
+
+			packet.data[datIndex] = (byte) (bp | bx | by | bz);
+			set.set(i);
+		}
+		datIndex++;
 	}
 
 	public void addTick(int index) {
@@ -84,17 +109,21 @@ public class EFChunk extends IndexedCord4B {
 	}
 
 	public void tickA() {
-		iterate((index) -> {			
+		iterate((index) -> {
 			p2vel(x(index), y(index), z(index));
 		});
 	}
 
 	public void tickB() {
-		iterate((index) -> {			
+		mp = 0;
+		iterate((index) -> {
 			vel2p(x(index), y(index), z(index));
-			exp.debug(x(index) + (x << 4), y(index) + (y << 4), z(index) + (z << 4), p[index], (float) Math.sqrt((vx[index]*vy[index]) + (vx[index]*vy[index]) + (vz[index]*vz[index])));
+			//exp.debug(x(index) + (x << 4), y(index) + (y << 4), z(index) + (z << 4), p[index], len(vx[index], vy[index], vz[index]));
 		});
 		swap();
+		if (mp > 0.6) {
+			emptyLife = 0;
+		}
 	}
 
 	private EFChunk getOrCreate(int x, int y, int z) {
@@ -107,13 +136,10 @@ public class EFChunk extends IndexedCord4B {
 	}
 
 	public static boolean isEmpty(float p, float v) {
-		//return false;
-		//v = (float) Math.sqrt(v);
-
-		//return Math.abs(p - 0.1) < 0.005 && v < 0.01;
-		return p < 0.2 || (p < 0.1 && v < 0.001);
+		//return p < 0.2 || (p < 0.1 && v < 0.1);
+		return Math.abs(p) < 0.1 && v < 0.1;
 	}
-	
+
 	public void vel2p(int x, int y, int z) {
 		int i = index(x, y, z);
 
@@ -126,25 +152,32 @@ public class EFChunk extends IndexedCord4B {
 		EFChunk cz = getOrCreate(x, y, z - 1);
 
 		float dp = 0.0f;
-		dp += cx.vx[ix] - vx[i];
-		dp += cy.vy[iy] - vy[i];
-		dp += cz.vz[iz] - vz[i];
+		float dx = cx.vx[ix] - vx[i];
+		float dy = cy.vy[iy] - vy[i];
+		float dz = cz.vz[iz] - vz[i];
 
-		dp *= 0.33F;
+		dp += (dx *= 0.33F);
+		dp += (dy *= 0.33F);
+		dp += (dz *= 0.33F);
+
+		//dp *= 0.33F;
+
+		//float[] r = react(x, y, z, dx, dy, dz);
+		//dp *= r[0];
+		//dp *= 1f - r[1];
 
 		p[i] *= 0.999F;
 		p[i] += dp;
 
-		if (p[i] < 0) {
-			p[i] = 0;
-		}
+		mp = Math.max(Math.abs(p[i]), mp);
+
+		//if (p[i] < 0) {
+		//	p[i] = 0;
+		//}
 
 		exp.maxPressure = Math.max(exp.maxPressure, p[i]);
-		
-		//if (new BlockPos(x(ix), y(ix), z(ix)).distanceSq(new BlockPos(x, y, z)) > 1) {
-		//	System.out.println("x");
-		//}
-		if (!isEmpty(p[i], (vx[i]*vy[i]) + (vx[i]*vy[i]) + (vz[i]*vz[i]))) {
+
+		if (!isEmpty(p[i], lensq(vx[i], vy[i], vz[i]))) {
 			addTick(i);
 			cx.addTick(ix);
 			cy.addTick(iy);
@@ -153,12 +186,12 @@ public class EFChunk extends IndexedCord4B {
 			getOrCreate(x, y + 1, z).addTick(index(x, y + 1, z));
 			getOrCreate(x, y, z + 1).addTick(index(x, y, z + 1));
 		} else {
-			vx[i] *= 0.985;
-			vy[i] *= 0.985;
-			vz[i] *= 0.985;
+			p[i]  *= 0.85f;
+			vx[i] *= 0.85f;
+			vy[i] *= 0.85f;
+			vz[i] *= 0.85f;
 		}
 	}
-
 
 	public void p2vel(int x, int y, int z) {
 		int i = index(x, y, z);
@@ -175,61 +208,57 @@ public class EFChunk extends IndexedCord4B {
 		float dy = p[i] - cy.p[iy];
 		float dz = p[i] - cz.p[iz];
 
-		final float k = 0.33F;
+		final float k = 0.33f;
 
-		vx[i] *= 0.9999F;
-		vy[i] *= 0.9999F;
-		vz[i] *= 0.9999F;
+		vx[i] *= 0.999F;
+		vy[i] *= 0.999F;
+		vz[i] *= 0.999F;
 
-		vx[i] += dx * k;
-		vy[i] += dy * k;
-		vz[i] += dz * k;
+		dx *= k;
+		dy *= k;
+		dz *= k;
 
-		//if (!isEmpty(p[i], (vx[i]*vy[i]) + (vx[i]*vy[i]) + (vz[i]*vz[i]))) {
-		//	//System.out.println("index");
-		//	addTick(i);
-		//	cx.addTick(ix);
-		//	cz.addTick(iz);
-		//}
-		//if (Math.abs(p[i] - 0.1) < 0.01) {
-		//	vx[i] = 0;
-		//	vz[i] = 0;
-		//}
-	}
+		vx[i] += dx;
+		vy[i] += dy;
+		vz[i] += dz;
 
-	public void spread(int x, int y, int z) {
+		float[] r = react(x, y, z, dx, dy, dz);
 
-		/*
-		double dx = 0.0;
-		double dz = 0.0;
-		double dp = 0.0;
-		for (int i = -1; i < 2; i++) {
-			for (int j = -1; j < 2; j++) {
-				int index = index(x + i, y, z + j);
-				Entry e = getOrCreate(index);
-				double ker = kernel[k(i, j)];
-				dx += e.vel.x * ker;
-				dz += e.vel.z * ker;
-				dp += e.pressure * ker;
+		if (r[0] != 1f) {
+
+			vx[i] *= r[0];
+			vy[i] *= r[0];
+			vz[i] *= r[0];
+		} else {
+			if ((r = react(x + 1, y, z, -dx, dy, dz))[0] != 1f) {
+				vx[i] *= r[0];
+			}
+			if ((r = react(x, y + 1, z, dx, -dy, dz))[0] != 1f) {
+				vy[i] *= r[0];
+			}
+			if ((r = react(x, y, z + 1, dx, dy, -dz))[0] != 1f) {
+				vz[i] *= r[0];
 			}
 		}
 
-		if (dp < 0) {
-			dp = 0;
+	}
+
+	// 0 non-reflect
+	private float[] react(int x, int y, int z, float fwx, float fwy, float fwz) {
+		BlockState bs = getBs(x, y, z);
+		if (bs.isIn(Blocks.AIR) || bs.isIn(BlockTags.IMPERMEABLE)) {
+			return new float[] { 1f };
 		}
-
-		pressure = dp;
-		vel = new Vector3d(dx, 0, dz);
-		*/
+		return new float[] { 0.0f };
 	}
 
-	public static int byBlockPos(int x, int y, int z) {
-		return IndexedCord.index(x >> 4, y >> 4, z >> 4);
+	private BlockState getBs(int x, int y, int z) {
+		BlockPos pos = new BlockPos(x + (this.x << 4), y + (this.y << 4), z + (this.z << 4));
+		return exp.reader.getBlockState(pos);
 	}
 
-	@Override
-	public int hashCode() {
-		return IndexedCord.index(x, y, z);
+	public static long byBlockPos(int x, int y, int z) {
+		return SectionPos.asLong(x >> 4, y >> 4, z >> 4);
 	}
 
 	@Override
@@ -242,4 +271,9 @@ public class EFChunk extends IndexedCord4B {
 		}
 		return false;
 	}
+
+	private static float lensq(float vx, float vy, float vz) {
+		return (vx * vy) + (vx * vy) + (vz * vz);
+	}
+
 }
