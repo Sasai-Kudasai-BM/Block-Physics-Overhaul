@@ -20,7 +20,6 @@ import net.skds.bpo.blockphysics.WWS;
 import net.skds.bpo.commands.ExplosionCommand;
 import net.skds.bpo.mixins.ExplosionMixin;
 import net.skds.bpo.network.Packets;
-import net.skds.bpo.util.pars.JCRUConv;
 import net.skds.bpo.util.pars.JCRUFeature;
 import net.skds.bpo.util.pars.JCRUPhys;
 import net.skds.core.events.OnWWSAttachEvent;
@@ -68,8 +67,8 @@ public class Events {
 	public void onTagsUpdated(TagsUpdatedEvent.CustomTagTypes e) {
 		JCRUPhys.loadFromConfig();
 		JCRUPhys.loadFromData();
-		JCRUConv.loadFromConfig();
-		JCRUConv.loadFromData();
+		//JCRUConv.loadFromConfig();
+		//JCRUConv.loadFromData();
 		JCRUFeature.loadFromConfig();
 		JCRUFeature.loadFromData();
 	}

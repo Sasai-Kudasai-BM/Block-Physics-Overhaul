@@ -8,6 +8,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.Explosion;
 import net.minecraft.world.World;
+import net.skds.bpo.blockphysics.features.TransformFeature;
 import net.skds.bpo.entity.AdvancedFallingBlockEntity;
 import net.skds.bpo.util.BFUtils;
 public class ExplosionPlug {
@@ -30,9 +31,10 @@ public class ExplosionPlug {
 			if (bs.getMaterial() == Material.AIR || bs.getBlock() instanceof FlowingFluidBlock) {
 				continue;
 			}
-			ConversionPars par = BFUtils.getConvParam(bs.getBlock());
-			if (par != ConversionPars.EMPTY) {
-				bs = par.expState;
+			
+			TransformFeature tf = BFUtils.getFeatures(bs.getBlock()).get(FeatureContainer.Type.TRANSFORM);
+			if (tf != null) {
+				bs = tf.expState;
 			}
 			world.setBlockState(bp, Blocks.AIR.getDefaultState(), 0);
 			AdvancedFallingBlockEntity e = new AdvancedFallingBlockEntity(world, bp.getX() + 0.5, bp.getY(), bp.getZ() + 0.5, bs);

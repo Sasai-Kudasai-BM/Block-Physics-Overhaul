@@ -11,5 +11,55 @@
 			"#minecraft:logs",
 			"minecraft:bone_block"
 		]
+	},
+	"Jipa": {
+		"type": "TRANSFORM",
+		"triggers": {
+			"fall": {
+				"val": true,
+				"to": {
+					"Name": "minecraft:grass_block"
+				}
+			},
+			"land": {
+				"val": 10.0,
+				"to": {
+					"Name": "minecraft:dirt"
+				}
+			},
+			"explode": {
+				"val": 10.0,
+				"to": {
+					"Name": "minecraft:dirt"
+				}
+			}
+		},
+		"blocks": [
+			"minecraft:grass_block"
+		]
+	},
+	"Repidgearnoj": {
+		"type": "TRANSFORM",
+		"triggers": {
+			"fall": {
+				"val": false,
+				"to": {}
+			},
+			"land": {
+				"val": 5.0,
+				"to": {
+					"Name": "minecraft:cobblestone"
+				}
+			},
+			"explode": {
+				"val": 10.0,
+				"to": {
+					"Name": "minecraft:cobblestone"
+				}
+			}
+		},
+		"blocks": [
+			"minecraft:stone"
+		]
 	}
 }

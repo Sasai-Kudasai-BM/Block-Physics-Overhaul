@@ -7,9 +7,10 @@ import java.util.Set;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 
-import net.minecraft.block.AirBlock;
 import net.minecraft.block.Block;
+import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
+import net.minecraft.block.material.Material;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.ITag;
 import net.minecraft.util.ResourceLocation;
@@ -26,7 +27,6 @@ import net.minecraft.world.chunk.IChunk;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.skds.bpo.BPOConfig;
 import net.skds.bpo.blockphysics.BlockPhysicsData;
-import net.skds.bpo.blockphysics.ConversionPars;
 import net.skds.bpo.blockphysics.FeatureContainer;
 import net.skds.bpo.blockphysics.WWS;
 import net.skds.bpo.util.data.ChunkData;
@@ -61,11 +61,11 @@ public class BFUtils {
 	public static FeatureContainer getFeatures(Block b) {
 		CustomBlockPars cbp = ((IBlockExtended) b).getCustomBlockPars();
 		FeatureContainer fe = cbp.get(FeatureContainer.class);
-		return fe;
+		return fe == null ? FeatureContainer.EMPTY : fe;
 	}
 
 	public static BlockPhysicsData getParam(Block b, BlockPos pos, World world) {
-		if (b instanceof AirBlock) {
+		if (b.getDefaultState().getMaterial() == Material.AIR) {
 			return BlockPhysicsData.DEFAULT_AIR;
 		}
 		CustomBlockPars cbp = ((IBlockExtended) b).getCustomBlockPars();
@@ -103,17 +103,25 @@ public class BFUtils {
 		return par;
 	}
 
-	public static ConversionPars getConvParam(Block b) {
-		if (b instanceof AirBlock) {
-			return ConversionPars.EMPTY;
-		}
-		CustomBlockPars cbp = ((IBlockExtended) b).getCustomBlockPars();
-		ConversionPars par = cbp.get(ConversionPars.class);
-		if (par == null) {
-			par = ConversionPars.EMPTY;
-		}
-		return par;
+	public static boolean isAir(Block b) {
+		return b.getDefaultState().getMaterial() == Material.AIR;
 	}
+
+	public static boolean isAir(BlockState bs) {
+		return bs.getMaterial() == Material.AIR;
+	}
+
+	//public static ConversionPars getConvParam(Block b) {
+	//	if (b instanceof AirBlock) {
+	//		return ConversionPars.EMPTY;
+	//	}
+	//	CustomBlockPars cbp = ((IBlockExtended) b).getCustomBlockPars();
+	//	ConversionPars par = cbp.get(ConversionPars.class);
+	//	if (par == null) {
+	//		par = ConversionPars.EMPTY;
+	//	}
+	//	return par;
+	//}
 
 	public static Set<BlockPos> getBlockPoses(AxisAlignedBB aabb) {
 		int x0 = (int) Math.floor(aabb.minX + 1E-4);

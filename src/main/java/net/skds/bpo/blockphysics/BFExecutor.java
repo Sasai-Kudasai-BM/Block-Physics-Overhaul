@@ -21,6 +21,7 @@ import net.minecraft.world.server.ChunkHolder;
 import net.minecraft.world.server.ServerWorld;
 import net.skds.bpo.BPOConfig;
 import net.skds.bpo.blockphysics.BFTask.Type;
+import net.skds.bpo.blockphysics.features.TransformFeature;
 import net.skds.bpo.entity.AdvancedFallingBlockEntity;
 import net.skds.bpo.util.BFUtils;
 import net.skds.core.util.blockupdate.BasicExecutor;
@@ -230,7 +231,7 @@ public class BFExecutor extends BasicExecutor {
 		BlockPos posd = pos.down();
 		BlockState stated = getBlockState(posd);
 
-		if (feature != null && !feature.isEmpty() && feature.contains(FeatureContainer.Simple.LEAVES)) {
+		if (feature != null && !feature.isEmpty() && feature.contains(FeatureContainer.Type.LEAVES)) {
 
 			if (canFall(stated)) {
 				if (!checkLeaves()) {
@@ -274,9 +275,9 @@ public class BFExecutor extends BasicExecutor {
 		if (state == null) {
 			return null;
 		}
-		ConversionPars cp = BFUtils.getConvParam(state.getBlock());
-		if (cp.onFall()) {
-			return cp.fallState;
+		TransformFeature tf = BFUtils.getFeatures(state.getBlock()).get(FeatureContainer.Type.TRANSFORM);
+		if (tf != null && tf.onFall()) {
+			return tf.fallState;
 		}
 		return state;
 	}
@@ -755,7 +756,7 @@ public class BFExecutor extends BasicExecutor {
 		boolean c = false;
 		boolean bl = false;
 		if (fc1 != null && !fc1.isEmpty()) {
-			if (fc1.contains(FeatureContainer.Simple.LOGS)) {
+			if (fc1.contains(FeatureContainer.Type.LOGS)) {
 				c = true;
 				bl = !state1.get(BlockStateProperties.AXIS).equals(dir.getAxis());
 			}
@@ -765,7 +766,7 @@ public class BFExecutor extends BasicExecutor {
 			return true;
 		} else if (c) {
 			if (fc2 != null && !fc2.isEmpty()) {
-				if (fc2.contains(FeatureContainer.Simple.LOGS) && !state2.get(BlockStateProperties.AXIS).equals(dir.getAxis())) {
+				if (fc2.contains(FeatureContainer.Type.LOGS) && !state2.get(BlockStateProperties.AXIS).equals(dir.getAxis())) {
 					return true;
 				}
 			}

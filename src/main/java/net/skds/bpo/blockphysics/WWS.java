@@ -2,6 +2,7 @@ package net.skds.bpo.blockphysics;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.concurrent.ConcurrentSkipListSet;
 
 import it.unimi.dsi.fastutil.longs.Long2ObjectRBTreeMap;
@@ -30,7 +31,7 @@ public class WWS implements IWWS {
 
 	public final CollisionMap collisionMap;
 
-	public static final int EX_STEPS = 1;
+	public static final int EX_STEPS = 5;
 
 	public static int E_COUNT = 0;
 
@@ -39,7 +40,8 @@ public class WWS implements IWWS {
 	private static int T_COUNT = 0;
 	private static ConcurrentLinkedQueue<AdvancedFallingBlockEntity> AFBETasks = new ConcurrentLinkedQueue<>();
 
-	public final Long2ObjectRBTreeMap<EFChunk> explosionMap = new Long2ObjectRBTreeMap<>();
+	public final ConcurrentSkipListMap<Long, EFChunk> explosionMap = new ConcurrentSkipListMap<>(Long::compare);
+	//public final Long2ObjectRBTreeMap<EFChunk> explosionMap = new Long2ObjectRBTreeMap<>();
 
 	public final ConcurrentLinkedQueue<CustomExplosion> explosions = new ConcurrentLinkedQueue<>();
 
@@ -65,6 +67,7 @@ public class WWS implements IWWS {
 
 	
 	public boolean iterateExplosions() {
+		
 		explosionMap.forEach((i, c) -> {
 			c.emptyLife++;
 			c.tickA();
@@ -72,8 +75,11 @@ public class WWS implements IWWS {
 		explosionMap.forEach((i, c) -> {
 			c.tickB();
 		});
+		explosionMap.forEach((i, c) -> {
+			c.swap();
+		});
 		//if (false)
-		explosionMap.long2ObjectEntrySet().removeIf((e) -> e.getValue().isEmpty());
+		explosionMap.entrySet().removeIf((e) -> e.getValue().isEmpty());
 		return !explosionMap.isEmpty();
 	}
 
@@ -175,7 +181,7 @@ public class WWS implements IWWS {
 			}
 		} while (i > 0);
 		
-		explosionMap.long2ObjectEntrySet().parallelStream().forEach(e -> {
+		explosionMap.entrySet().forEach(e -> {
 			e.getValue().reset();
 		});
 

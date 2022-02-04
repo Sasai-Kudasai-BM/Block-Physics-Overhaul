@@ -13,13 +13,14 @@ import net.skds.bpo.client.particles.ExplodeParticle;
 
 public class ExplosionPacket {
 
+	public boolean isEmpty = true;
 	public byte y;
 	public byte[] data;
 	public BitSet cords;
 	public int x, z;
 
 	public byte steps;
-	ByteBuf buffer = Unpooled.buffer(512);
+	ByteBuf buffer = Unpooled.buffer(576);
 
 	public ExplosionPacket(int steps, int x, int y, int z) {
 		this.steps = (byte) steps;
@@ -30,21 +31,28 @@ public class ExplosionPacket {
 
 	public void writeStep() {
 		buffer.writeInt(data.length);
-		buffer.writeBytes(data);
-		byte[] arr = cords.toByteArray();
-		buffer.writeInt(arr.length);
-		buffer.writeBytes(arr);
+		if (data.length > 0) {
+			buffer.writeBytes(data);
+			byte[] arr = cords.toByteArray();
+			buffer.writeInt(arr.length);
+			buffer.writeBytes(arr);
+		}
 	}
 
 	public void readStep() {
 		int l = buffer.readInt();
-		this.data = new byte[l];
-		buffer.readBytes(data);
-
-		l = buffer.readInt();
-		byte[] arr = new byte[l];
-		buffer.readBytes(arr);
-		this.cords = BitSet.valueOf(arr);
+		if (l > 0) {
+			this.data = new byte[l];
+			buffer.readBytes(data);
+	
+			l = buffer.readInt();
+			byte[] arr = new byte[l];
+			buffer.readBytes(arr);
+			this.cords = BitSet.valueOf(arr);
+		} else {			
+			this.data = new byte[0];
+			this.cords = new BitSet();
+		}
 	}
 
 	public ExplosionPacket(PacketBuffer buffer) {

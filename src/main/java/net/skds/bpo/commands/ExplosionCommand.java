@@ -15,10 +15,10 @@ import net.skds.core.util.blockupdate.WWSGlobal;
 public class ExplosionCommand {
 
 	public static LiteralArgumentBuilder<CommandSource> reg() {
-		return Commands.literal("explosion").requires(source -> source.hasPermissionLevel(2))
-				.then((Commands.literal("create")).executes(context -> create(context, 8))
-				.then((Commands.argument("power", FloatArgumentType.floatArg())).executes(context -> create(context, FloatArgumentType.getFloat(context, "power")))))
-				.then((Commands.literal("tick")).executes(context -> tick(context)));
+		return Commands.literal("bpo")
+				.then(Commands.literal("explosion").requires(source -> source.hasPermissionLevel(2))
+						.then((Commands.argument("power", FloatArgumentType.floatArg())).executes(
+										context -> create(context, FloatArgumentType.getFloat(context, "power")))));
 	}
 
 	static int create(CommandContext<CommandSource> context, float power) {
@@ -26,7 +26,7 @@ public class ExplosionCommand {
 		World w = source.getWorld();
 		CustomExplosion explosion = new CustomExplosion(w, source.getPos(), power, null);
 		explosion.explode();
-        source.sendFeedback(new StringTextComponent("Created explosion with power " + power), true);
+		source.sendFeedback(new StringTextComponent("Created explosion with power " + power), true);
 		//WWSGlobal.get(w).getTyped(WWS.class).explosions.clear();
 		//WWSGlobal.get(w).getTyped(WWS.class).explosions.add(explosion);
 
@@ -37,7 +37,7 @@ public class ExplosionCommand {
 		CommandSource source = context.getSource();
 		World w = source.getWorld();
 		boolean s = WWSGlobal.get(w).getTyped(WWS.class).iterateExplosions();
-        source.sendFeedback(new StringTextComponent("tick " + s), true);
+		source.sendFeedback(new StringTextComponent("tick " + s), true);
 		return 0;
 	}
 

@@ -45,8 +45,9 @@ import net.skds.bpo.BPO;
 import net.skds.bpo.BPOConfig;
 import net.skds.bpo.blockphysics.BFExecutor;
 import net.skds.bpo.blockphysics.BlockPhysicsData;
-import net.skds.bpo.blockphysics.ConversionPars;
+import net.skds.bpo.blockphysics.FeatureContainer;
 import net.skds.bpo.blockphysics.WWS;
+import net.skds.bpo.blockphysics.features.TransformFeature;
 import net.skds.bpo.registry.Entities;
 import net.skds.bpo.util.BFUtils;
 import net.skds.core.api.IWorldExtended;
@@ -68,7 +69,7 @@ public class AdvancedFallingBlockEntity extends Entity implements IEntityAdditio
 	public byte slideDirectionV = 0;
 
 	public BlockPhysicsData pars;
-	public ConversionPars conv;
+	public TransformFeature conv;
 
 	public byte slideProgress = -1;
 	public byte slideDirection = -1;
@@ -603,7 +604,7 @@ public class AdvancedFallingBlockEntity extends Entity implements IEntityAdditio
 		this.fall = this.collidedVertically && motion.y < 0/* && Math.abs((maxMove.y + getPosY()) % 1) < 7.5E-2 */;
 		if (world.isRemote) {
 			if (!onGround && fall && Math.abs(vy) < BDZ) {
-				if (world.getClosestPlayer(getPosX(), getPosY(), getPosZ(), 16, (e) -> true) != null)
+				if (world.getClosestPlayer(getPosX(), getPosY(), getPosZ(), 10, (e) -> true) != null)
 					world.playSound(getPosX(), getPosY(), getPosZ(), fallTile.getSoundType().getPlaceSound(),
 							SoundCategory.BLOCKS, 0.55F, 0.8F, true);
 
@@ -789,7 +790,7 @@ public class AdvancedFallingBlockEntity extends Entity implements IEntityAdditio
 
 	private void refteshPars() {
 		this.pars = getParam(this.fallTile);
-		this.conv = BFUtils.getConvParam(this.fallTile.getBlock());
+		this.conv = BFUtils.getFeatures(this.fallTile.getBlock()).get(FeatureContainer.Type.TRANSFORM);
 	}
 
 	private void landConvert(double velocity) {

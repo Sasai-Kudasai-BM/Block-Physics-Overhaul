@@ -1,6 +1,8 @@
 package net.skds.bpo.blockphysics.explosion;
 
 
+import java.util.concurrent.ConcurrentSkipListMap;
+
 import it.unimi.dsi.fastutil.longs.Long2ObjectRBTreeMap;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
@@ -32,7 +34,7 @@ public class CustomExplosion extends IndexedCord {
 
 	public final int x0, y0, z0;
 
-	public final Long2ObjectRBTreeMap<EFChunk> map;
+	public final ConcurrentSkipListMap<Long, EFChunk> map;
 
 	public CustomExplosion(World world, Vector3d pos, float power, Explosion explosion) {
 		this.reader = new TurboWorldReader(world);
@@ -50,13 +52,14 @@ public class CustomExplosion extends IndexedCord {
 	}
 
 	public EFChunk getOrCreate(long index) {
-		return map.computeIfAbsentPartial(index, (i) -> new EFChunk(i, this));
+		return map.computeIfAbsent(index, (i) -> new EFChunk(i, this));
+		//return map.computeIfAbsentPartial(index, (i) -> new EFChunk(i, this));
 	}
 
 	public void explode() {
 		long index = SectionPos.asLong((int) pos.x >> 4, (int) pos.y >> 4, (int) pos.z >> 4);
 		EFChunk c = getOrCreate(index);
-		c.setPressure((int) pos.x & 15, (int) pos.y & 15, (int) pos.z & 15, power * 10);
+		c.setInit((int) pos.x & 15, (int) pos.y & 15, (int) pos.z & 15, power * 10);
 	}
 
 	void debug(int x, int y, int z, float p, float v) {

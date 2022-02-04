@@ -1,8 +1,5 @@
 buildscript {
 	repositories {
-		flatDir {
-			dirs 'libs'
-		}
 		jcenter()
 		maven { 
 			name = 'forge'
@@ -24,6 +21,7 @@ buildscript {
 apply plugin: 'net.minecraftforge.gradle'
 apply plugin: 'org.spongepowered.mixin'
 apply plugin: 'eclipse'
+apply plugin: 'maven-publish'
 
 version = "${project.modVersion}"
 group = 'net.skds.' + project.modId
@@ -80,8 +78,13 @@ configurations {
 	embed
 	compile.extendsFrom(embed)
 }
+repositories {
+    jcenter { url 'https://jitpack.io' }
+}
 
 dependencies {
+    //embed ( 'com.github.Sasai-Kudasai-BM:SKDS-Core:main-SNAPSHOT')
+    //implementation ( 'com.github.Sasai-Kudasai-BM:SKDS-Core:main-SNAPSHOT')
 	minecraft 'net.minecraftforge:forge:1.16.5-36.0.14'
 	embed('org.spongepowered:mixin:0.8.4') { transitive = false }
 	annotationProcessor 'org.spongepowered:mixin:0.8.4:processor'
@@ -160,6 +163,13 @@ artifacts {
 	archives deobfJar
 }
 
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            artifact jar
+        }
+    }
+}
 
 mixin {
 	add sourceSets.main, 'mixins.' + project.modId + '.refmap.json'
