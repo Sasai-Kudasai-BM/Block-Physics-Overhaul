@@ -1,4 +1,4 @@
-package net.skds.bpo.blockphysics;
+package net.skds.bpo.blockphysics.explosion;
 
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
@@ -8,6 +8,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.Explosion;
 import net.minecraft.world.World;
+import net.skds.bpo.blockphysics.FeatureContainer;
 import net.skds.bpo.blockphysics.features.TransformFeature;
 import net.skds.bpo.entity.AdvancedFallingBlockEntity;
 import net.skds.bpo.util.BFUtils;
@@ -31,22 +32,26 @@ public class ExplosionPlug {
 			if (bs.getMaterial() == Material.AIR || bs.getBlock() instanceof FlowingFluidBlock) {
 				continue;
 			}
-			
-			TransformFeature tf = BFUtils.getFeatures(bs.getBlock()).get(FeatureContainer.Type.TRANSFORM);
-			if (tf != null) {
-				bs = tf.expState;
-			}
-			world.setBlockState(bp, Blocks.AIR.getDefaultState(), 0);
-			AdvancedFallingBlockEntity e = new AdvancedFallingBlockEntity(world, bp.getX() + 0.5, bp.getY(), bp.getZ() + 0.5, bs);
-			e.fallTime = -5;
-			Vector3d delta = e.getPositionVec().subtract(pos);
-			float m = 5;
-			Vector3d motion = delta.normalize().scale((power / 4f) * m * 1f / (/*delta.lengthSquared() */ Math.sqrt(e.pars.mass)));
-			if (motion.length() > m ) {
-				motion = motion.normalize().scale(m);
-			}
-			e.setMotion(motion);
-			world.addEntity(e);
+			destroyBlock(bp, bs);
 		}
+	}
+
+	public void destroyBlock(BlockPos bp, BlockState bs) {
+
+		TransformFeature tf = BFUtils.getFeatures(bs.getBlock()).get(FeatureContainer.Type.TRANSFORM);
+		if (tf != null) {
+			bs = tf.expState;
+		}
+		world.setBlockState(bp, Blocks.AIR.getDefaultState(), 0);
+		AdvancedFallingBlockEntity e = new AdvancedFallingBlockEntity(world, bp.getX() + 0.5, bp.getY(), bp.getZ() + 0.5, bs);
+		e.fallTime = -5;
+		Vector3d delta = e.getPositionVec().subtract(pos);
+		float m = 5;
+		Vector3d motion = delta.normalize().scale((power / 4f) * m * 1f / (/*delta.lengthSquared() */ Math.sqrt(e.pars.mass)));
+		if (motion.length() > m ) {
+			motion = motion.normalize().scale(m);
+		}
+		e.setMotion(motion);
+		world.addEntity(e);
 	}
 }

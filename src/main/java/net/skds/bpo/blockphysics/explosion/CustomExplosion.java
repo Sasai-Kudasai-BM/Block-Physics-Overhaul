@@ -3,7 +3,6 @@ package net.skds.bpo.blockphysics.explosion;
 
 import java.util.concurrent.ConcurrentSkipListMap;
 
-import it.unimi.dsi.fastutil.longs.Long2ObjectRBTreeMap;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;

@@ -5,12 +5,10 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.concurrent.ConcurrentSkipListSet;
 
-import it.unimi.dsi.fastutil.longs.Long2ObjectRBTreeMap;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.world.server.ServerWorld;
 import net.skds.bpo.BPOConfig;
-import net.skds.bpo.blockphysics.explosion.CustomExplosion;
 import net.skds.bpo.blockphysics.explosion.EFChunk;
 import net.skds.bpo.entity.AdvancedFallingBlockEntity;
 import net.skds.bpo.util.collision.CollisionMap;
@@ -43,7 +41,8 @@ public class WWS implements IWWS {
 	public final ConcurrentSkipListMap<Long, EFChunk> explosionMap = new ConcurrentSkipListMap<>(Long::compare);
 	//public final Long2ObjectRBTreeMap<EFChunk> explosionMap = new Long2ObjectRBTreeMap<>();
 
-	public final ConcurrentLinkedQueue<CustomExplosion> explosions = new ConcurrentLinkedQueue<>();
+	// TODO
+	//public final ConcurrentLinkedQueue<CustomExplosion> explosions = new ConcurrentLinkedQueue<>();
 
 	public WWS(ServerWorld w, WWSGlobal owner) {
 		world = (ServerWorld) w;
