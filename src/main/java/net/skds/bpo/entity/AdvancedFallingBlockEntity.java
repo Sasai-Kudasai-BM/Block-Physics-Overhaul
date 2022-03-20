@@ -748,6 +748,7 @@ public class AdvancedFallingBlockEntity extends Entity implements IEntityAdditio
 		buffer.writeByte(slideDirection);
 		buffer.writeCompoundTag(NBTUtil.writeBlockState(fallTile));
 		buffer.writeCompoundTag(tileEntityData);
+		buffer.writeInt(fallTime);
 		syncData();
 	}
 
@@ -768,6 +769,7 @@ public class AdvancedFallingBlockEntity extends Entity implements IEntityAdditio
 				te.getBlockState();
 			}
 		}
+		fallTime = additionalData.readInt();
 		slidePos = getPosition();
 		startSlide();
 	}

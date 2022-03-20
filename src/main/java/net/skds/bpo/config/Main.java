@@ -22,18 +22,18 @@ public class Main {
 
         innerBuilder.push("General");
 
-        maxFallingBlocks = builder.apply("maxFallingBlocks").comment("UwU").defineInRange("maxFallingBlocks", 1000, 100, 10_000);
-        maxQueueLen = builder.apply("maxQueueLen").comment("UwU").defineInRange("maxQueueLen", 10_000, 100, 500_000);
-        downCheckLimit = builder.apply("downCheckLimit").comment("UwU").defineInRange("downCheckLimit", 30, -1, 1024);
+        maxFallingBlocks = builder.apply("maxFallingBlocks").comment("Limit for falling entities").defineInRange("maxFallingBlocks", 1000, 100, 10_000);
+        maxQueueLen = builder.apply("maxQueueLen").comment("Limit for physics update queue").defineInRange("maxQueueLen", 10_000, 100, 500_000);
+        downCheckLimit = builder.apply("downCheckLimit").comment("Limit for support check task chain").defineInRange("downCheckLimit", 30, -1, 1024);
 
-        damageMultiplier = builder.apply("damageMultiplier").comment("UwU").defineInRange("damageMultiplier", 1.0, 0.0, 999999.0);
-        explosionMultiplier = builder.apply("explosionMultiplier").comment("WIP").defineInRange("explosionMultiplier", 1.0, 0.0, 999999.0);
+        damageMultiplier = builder.apply("damageMultiplier").defineInRange("damageMultiplier", 1.0, 0.0, 999999.0);
+        explosionMultiplier = builder.apply("explosionMultiplier").defineInRange("explosionMultiplier", 2.0, 0.0, 100.0);
 
-        dropDestroyedBlocks = builder.apply("dropDestroyedBlocks").comment("UwU").define("dropDestroyedBlocks", true);
-        triggerOnStep = builder.apply("triggerOnStep").comment("UwU").define("triggerOnStep", true);
+        dropDestroyedBlocks = builder.apply("dropDestroyedBlocks").comment("Should smashed blocks drop").define("dropDestroyedBlocks", true);
+        triggerOnStep = builder.apply("triggerOnStep").comment("Should player trigger blocks under feet").define("triggerOnStep", true);
         explosionFire = builder.apply("explosionFire").comment("WIP").define("explosionFire", true);
 
-        dimensionBlacklist = builder.apply("dimensionBlacklist").comment("UwU").define("dimensionBlacklist", DL);
+        dimensionBlacklist = builder.apply("dimensionBlacklist").comment("Dimensions without physics").define("dimensionBlacklist", DL);
 
         debug = builder.apply("debug").comment("UwU").define("debug", false);
 

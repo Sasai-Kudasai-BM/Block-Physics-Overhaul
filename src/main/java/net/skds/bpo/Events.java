@@ -18,8 +18,8 @@ import net.minecraftforge.fml.event.server.FMLServerStartedEvent;
 import net.skds.bpo.blockphysics.WWS;
 import net.skds.bpo.blockphysics.explosion.ExplosionPlug;
 import net.skds.bpo.commands.ExplosionCommand;
-import net.skds.bpo.mixins.ExplosionMixin;
 import net.skds.bpo.network.Packets;
+import net.skds.bpo.util.Interface.IExplosionMix;
 import net.skds.bpo.util.pars.JCRUFeature;
 import net.skds.bpo.util.pars.JCRUPhys;
 import net.skds.core.events.OnWWSAttachEvent;
@@ -78,7 +78,6 @@ public class Events {
 		ThreadProvider.doSyncFork(WWS::nextTask);
 	}
 
-
 	@SubscribeEvent
 	public void onServerStartTick(ServerTickEvent e) {
 		if (e.phase == Phase.START) {
@@ -102,8 +101,7 @@ public class Events {
 	public void onExplode0(ExplosionEvent.Detonate e) {
 		World world = e.getWorld();
 		Explosion ex = e.getExplosion();
-		ExplosionPlug ep = new ExplosionPlug(world, ex.getPosition(),
-				((ExplosionMixin) ex).getPower() * (float) BPOConfig.MAIN.explosionMultiplier, ex);
+		ExplosionPlug ep = new ExplosionPlug(world, ex.getPosition(), ((IExplosionMix) ex).getPower(), ex);
 		ep.explode();
 	}
 

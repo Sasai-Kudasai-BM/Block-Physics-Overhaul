@@ -130,6 +130,48 @@
 			"minecraft:grass_path"
 		]
 	},
+	"mus": {
+		"mass": 500.0,
+		"strength": 0.7,
+		"bounce": 0.0,
+		"slideChance": 0.5,
+		"radial": 0,
+		"linear": 0,
+		"arc": 0,
+		"falling": true,
+		"ceiling": false,
+		"fragile": true,
+		"slide": false,
+		"hanging": false,
+		"attach": false,
+		"attachIgnore": [],
+		"natural": {
+			"falling": false
+		},
+		"blocks": [
+			"minecraft:brown_mushroom_block",
+			"minecraft:red_mushroom_block"
+		]
+	},
+	"mus2": {
+		"mass": 500.0,
+		"strength": 10.0,
+		"bounce": 0.0,
+		"slideChance": 0.5,
+		"radial": 0,
+		"linear": 0,
+		"arc": 0,
+		"falling": true,
+		"ceiling": false,
+		"fragile": true,
+		"slide": false,
+		"hanging": false,
+		"attach": false,
+		"attachIgnore": [],
+		"blocks": [
+			"minecraft:mushroom_stem"
+		]
+	},
 	"sandstone": {
 		"mass": 3000.0,
 		"strength": 50.0,
@@ -208,7 +250,8 @@
 		"attachIgnore": [],
 		"blocks": [
 			"#minecraft:carpets",
-			"minecraft:bell"
+			"minecraft:bell",
+			"minecraft:ladder"
 		]
 	},
 	"wool": {
@@ -294,7 +337,9 @@
 		"attachIgnore": [],
 		"blocks": [
 			"#minecraft:flower_pots",
-			"#minecraft:beds"
+			"#minecraft:beds",
+			"#minecraft:campfires",
+			"minecraft:brewing_stand"
 		]
 	},
 	"endstone": {

@@ -76,6 +76,12 @@ public class FeatureContainer extends Object2ObjectMap<Object, IFeature> {
 				return new IFeature.Simp(this);
 			}
 		},
+		TNT {
+			@Override
+			public IFeature create(JsonObject jo, Set<Block> blocks) {
+				return new IFeature.Simp(this);
+			}
+		},
 		TRANSFORM {
 			@Override
 			public IFeature create(JsonObject jo, Set<Block> blocks) {

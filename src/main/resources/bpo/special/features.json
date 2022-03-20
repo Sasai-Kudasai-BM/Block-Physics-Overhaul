@@ -1,18 +1,26 @@
 {
-	"a": {
+	"leaf": {
 		"type": "LEAVES",
 		"blocks": [
 			"#minecraft:leaves"
 		]
 	},
-	"b": {
+	"beam": {
 		"type": "LOGS",
 		"blocks": [
 			"#minecraft:logs",
 			"minecraft:bone_block"
 		]
 	},
-	"Jipa": {
+	"explodable": {
+		"type": "TNT",
+		"blocks": [
+			"#minecraft:doors",
+			"minecraft:tnt",
+			"#forge:chests"
+		]
+	},
+	"grass": {
 		"type": "TRANSFORM",
 		"triggers": {
 			"fall": {
@@ -38,7 +46,7 @@
 			"minecraft:grass_block"
 		]
 	},
-	"Repidgearnoj": {
+	"stone": {
 		"type": "TRANSFORM",
 		"triggers": {
 			"fall": {
