@@ -64,9 +64,9 @@ public class AdvancedFallingBlockEntity extends Entity implements IEntityAdditio
 	private final float BDZ = 1 * TG + 0.005F;
 
 	@OnlyIn(Dist.CLIENT)
-	public TileEntity te = null;
+	public TileEntity te;
 	@OnlyIn(Dist.CLIENT)
-	public byte slideDirectionV = 0;
+	public byte slideDirectionV;
 
 	public BlockPhysicsData pars;
 	public TransformFeature conv;
